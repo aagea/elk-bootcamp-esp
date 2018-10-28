@@ -5,7 +5,7 @@ Este repositorio contiene todo el material practico que se utiliza en el Boot Ca
 
 En este directorio se encuentra una pequeña practica en donde se explica cómo se utiliza el entorno que vamos a utilizar durante todos los ejercicios.
 
-##Práctica 2: operaciones básicas de ElasticSearch
+## Práctica 2: operaciones básicas de ElasticSearch
 
 En esta práctica se repasarán operaciones básicas que se podrán hacer con ElasticSearch. De esta forma empezaremos a familiarizarnos con la herramienta.
 
