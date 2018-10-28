@@ -231,10 +231,10 @@ $ curl -H "Content-Type: application/json" -XPOST "localhost:9200/bank/_doc/_bul
 curl -X GET "localhost:9200/bank/_mapping/_doc"
 ```
 
-4. Ahora vamos a hacer la query sencilla vamos a recuperar todos los datos.
+4. Ahora vamos a hacer la query sencilla vamos a contar cuantos registros hay.
 
 ```bash
-curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
         "match_all": {}
@@ -242,7 +242,11 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 }'
 ```
 
-
+5. Pregunta: ¿Cuántas mujeres hay en la empresa?
+6. Pregunta: ¿Cuántas mujeres viven en MA or WA?
+7. Pregunta: ¿Cuántos hombre tiene un saldo mayor  que 30000$?
+8. Pregunta: ¿Podemos borrar sólo los hombres por debajo de los 5000$?
+9. Pregunta: ¿Cuántas mujeres tienes más de 30 años?
 
 
 
