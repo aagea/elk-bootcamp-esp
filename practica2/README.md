@@ -112,6 +112,140 @@ curl -X DELETE "localhost:9200/twitter"
 
 8. **Tarea:** Borra todo los indices que hemos creado en este apartado.
 
+### Indexando con  documentos
+
+En este apartado vamos a indexar algunos momento y probaremos como podemos  crear nuestro documentos.
+
+1. Vamos a crear un documento.
+
+```bash
+curl -X PUT "localhost:9200/twitter/_doc/1" -H 'Content-Type: application/json' -d'
+{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+```
+
+2. Pero espera nos habíamos cargado el indice. ¿qué ha pasado?
+3. Vale pero hemos creado un documento donde hemos puesto el ID de forma explicita, ahora vamos a probar esto.
+
+```bash
+curl -X POST "localhost:9200/twitter/_doc/" -H 'Content-Type: application/json' -d'
+{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+```
+
+4. En este caso el id es auto-generado por lo que no nos tenemos que preocupar de su generación.
+5. Por último vamos a borrar el indice twitter.
+
+```bash
+curl -X DELETE "localhost:9200/twitter"
+```
+
+4. **Pregunta:** ¿Cómo se almacenan los documentos?
+
+### Recuperando documentos
+
+Vamos a recuperar los documentos a través de su ID por lo que no haremos consultas complejas, pero entenderemos como se almacenan nuestros datos en ElasticSearch.
+
+1. Vamos a crear un documento.
+
+```bash
+curl -X PUT "localhost:9200/twitter/_doc/0" -H 'Content-Type: application/json' -d'
+{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}'
+```
+
+2. Primero vamos a chequear que nuestro documento exista.
+
+```bash
+curl -X HEAD "localhost:9200/twitter/_doc/0"
+```
+
+3. Para recuperarlo por su ID vamos a utilizar el siguiente comando.
+
+```bash
+curl -X GET "localhost:9200/twitter/_doc/0?pretty"
+```
+
+4. Espera aquí hay más cosas de las que hemos añadido. ¿Para qué sirven todos esto datos?
+5. Esto es simple pero la recuperación de información se complica cuándo lanzamos consultas directas a los indices.
+
+### Borrando un documento
+
+Borrar documentos es sencillo en ElasticSearch y no es necesario tener que borrar siempre el indice.
+
+1. Esto es muy sencillo solo tenemos que lanzar este comando y borramos el documento seleccionado.
+
+```bash
+curl -X DELETE "localhost:9200/twitter/_doc/0"
+```
+
+2. Pero sí queremos borrar varios documento y pero no queremos borrar el indice, debemos utilizar el borrado por query.
+
+```bash
+curl -X POST "localhost:9200/twitter/_delete_by_query" -H 'Content-Type: application/json' -d'
+{
+  "query": { 
+    "match_all": {}
+  }
+}'
+
+```
+
+##Ejercicio 3. Probando el lenguaje de consultas.
+
+En este ejercicio vamos a aprender cómo ejecutar diferentes tipos de consulta utilizando el Query DSL.
+
+1. Vamos a cargar un juego de datos en ElasticSearch para que podamos jugar con los datos del sistema.
+
+```bash
+$ curl -H "Content-Type: application/json" -XPOST "localhost:9200/bank/_doc/_bulk?pretty&refresh" --data-binary "@accounts.json"
+```
+
+2. Si hacemos `head accounts.json` podemos ver que formato tiene estos datos.
+
+```json
+{"index":{"_id":"1"}}
+{"account_number":1,"balance":39225,"firstname":"Amber","lastname":"Duke","age":32,"gender":"M","address":"880 Holmes Lane","employer":"Pyrami","email":"amberduke@pyrami.com","city":"Brogan","state":"IL"}
+{"index":{"_id":"6"}}
+{"account_number":6,"balance":5686,"firstname":"Hattie","lastname":"Bond","age":36,"gender":"M","address":"671 Bristol Street","employer":"Netagy","email":"hattiebond@netagy.com","city":"Dante","state":"TN"}
+{"index":{"_id":"13"}}
+{"account_number":13,"balance":32838,"firstname":"Nanette","lastname":"Bates","age":28,"gender":"F","address":"789 Madison Street","employer":"Quility","email":"nanettebates@quility.com","city":"Nogal","state":"VA"}
+{"index":{"_id":"18"}}
+{"account_number":18,"balance":4180,"firstname":"Dale","lastname":"Adams","age":33,"gender":"M","address":"467 Hutchinson Court","employer":"Boink","email":"daleadams@boink.com","city":"Orick","state":"MD"}
+{"index":{"_id":"20"}}
+{"account_number":20,"balance":16418,"firstname":"Elinor","lastname":"Ratliff","age":36,"gender":"M","address":"282 Kings Place","employer":"Scentric","email":"elinorratliff@scentric.com","city":"Ribera","state":"WA"}
+```
+
+3. Otra forma de saber como son los datos que tenemos en recuperando el Mapping Type.
+
+```bash
+curl -X GET "localhost:9200/bank/_mapping/_doc"
+```
+
+4. Ahora vamos a hacer la query sencilla vamos a recuperar todos los datos.
+
+```bash
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "match_all": {}
+    }
+}'
+```
+
+
+
+
+
 
 
 
