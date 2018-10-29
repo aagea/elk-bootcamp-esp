@@ -1,10 +1,17 @@
 package com.alvaroagea.elk.practica3;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 
+import java.io.IOException;
 import java.time.Instant;
 
 class Controller {
+
+    private RestHighLevelClient client = new RestHighLevelClient(
+            RestClient.builder(new HttpHost("localhost", 9200, "http")));
+
 
     /***
      * Index the doument in the system.
@@ -13,7 +20,7 @@ class Controller {
      * @param message Message stored.
      */
     void index(Instant date, String author, String message) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /***
@@ -21,15 +28,23 @@ class Controller {
      * @param message Message to search.
      */
     void searchMessage(String message) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**
      * Search by author using wildcards.
+     *
      * @param author Wildcard author.
      */
     void searchAuthor(String author) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Close is the method that closes the client.
+     */
+    void close() throws IOException {
+        client.close();
     }
 
 }

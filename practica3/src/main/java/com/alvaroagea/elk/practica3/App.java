@@ -38,7 +38,8 @@ public class App {
         }
     }
 
-    private static void endApplication() {
+    private static void endApplication() throws IOException {
+        controller.close();
         System.out.println("Goodbye!!");
     }
 
