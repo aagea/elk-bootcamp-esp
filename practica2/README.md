@@ -7,7 +7,7 @@ El objetivo de esta práctica es aprender a utilizar los comandos básicos de El
 La idea de este ejercicio es que conozcamos cómo extraer los principales parámetros de un cluster, para conocer su estado.
 
 1. Lo primero que vamos es arrancar ejecutar el comando `docker compose up` en la carpeta del ejercicio.
-2. El comando más básico para saber cual es el estado del cluste es el comando status.
+2. El comando más básico para saber cual es el estado del cluster es el comando status.
 
 ```bash
 curl -X GET "localhost:9200/_cluster/health?pretty"
@@ -166,7 +166,7 @@ curl -X PUT "localhost:9200/twitter/_doc/0" -H 'Content-Type: application/json' 
 2. Primero vamos a chequear que nuestro documento exista.
 
 ```bash
-curl -X HEAD "localhost:9200/twitter/_doc/0"
+curl --HEAD "localhost:9200/twitter/_doc/0"
 ```
 
 3. Para recuperarlo por su ID vamos a utilizar el siguiente comando.
