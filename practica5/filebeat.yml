@@ -1,0 +1,10 @@
+filebeat.inputs:
+- type: docker
+  enabled: true
+  containers:
+    path: "/var/lib/docker/containers"
+    ids:
+    - '*'
+output.elasticsearch:
+  hosts: ["es-pract5:9200"]
+
