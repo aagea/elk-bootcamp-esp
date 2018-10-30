@@ -18,7 +18,7 @@ public class App {
         String command;
         boolean exit = false;
         while (!exit) {
-            System.out.println("(A)dd information - (S)earch message - Search Au(t)hor - (E)xit");
+            System.out.println("(A)dd information - (S)earch message - Search Au(T)hor - (R)eset -(E)xit");
             command = readLine();
             switch (command.toLowerCase()) {
                 case "a":
@@ -30,12 +30,19 @@ public class App {
                 case "t":
                     searchAuthor();
                     break;
+                case "r":
+                    reset();
+                    break;
                 case "e":
                     endApplication();
                     exit = true;
                     break;
             }
         }
+    }
+
+    private static void reset() throws IOException {
+        controller.reset();
     }
 
     private static void endApplication() throws IOException {
@@ -65,9 +72,12 @@ public class App {
     }
 
     private static String readLine() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            return reader.readLine();
+        if (System.console() != null) {
+            return System.console().readLine();
         }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                System.in));
+        return reader.readLine();
     }
 
 }
