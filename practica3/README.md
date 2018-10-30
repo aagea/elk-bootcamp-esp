@@ -2,7 +2,7 @@
 
 En esta práctica vamos a probar cómo se usa la librería de ElasticSearch con Java, para ello vamos a usar un código de ejemplo. Nuestro trabajo va a se completar el código.
 
-## Añadiendo el proyecto
+## Ejercicio 1. Añadiendo el proyecto
 
 En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más fácil trabajar con el código Java.
 
@@ -21,7 +21,7 @@ En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más 
 13. Pulsamos `finish`.
 14. Ya esta ahora ya tenemos nuestro proyecto importado en IntelliJ. 
 
-## Revisando las dependencias
+## Ejercicio 2. Revisando las dependencias
 
 Lo primero que vamos a hacer es comprobar las dependencias que tenemos instaladas.
 
@@ -39,16 +39,16 @@ Lo primero que vamos a hacer es comprobar las dependencias que tenemos instalada
 
 2. Ahora vamos a al fichero `com.alvaroagea.elk.practica3.Controller` éste contiene todos los métodos que gestionan el indice.
 
-## Repaso del código
+## Ejercicio 3. Repaso del código
 
 En este apartado vamos a repasar la dos clases que están incluidas en el repositorio: `App` y `Controller`.
 
 1. La clase `App` contiene la lógica de cómo se ejecutan los comandos desde consola.
 2. La clase `controller` contiene los métodos que tienen que acceder a ElasticSearch.
 3. Esta clase tiene una instancia del cliente de alto nivel.
-4. **Tarea:** revisa los métodos con los que cuenta el cliente rest en esta [URL](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high-getting-started.html)
+4. **Tarea:** Revisa los métodos con los que cuenta el cliente rest en esta [URL](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high-getting-started.html)
 
-## Indexando los elementos
+## Ejercicio 4. Indexando los elementos
 
 Después de haber revisado los diferentes documentos, vamos a indexar un documento. Para ello vamos a modificar el método índex que se encuentra en la clase `controller`.
 
@@ -84,7 +84,7 @@ import org.elasticsearch.client.RequestOptions;
 
 5. Para chequear que todo esta bien ejecutar el comando `mvn clean install`.
 
-## Buscando dentro de los mensajes
+## Ejercicio 5. Buscando dentro de los mensajes
 
 El siguiente paso va a ser implementar el método que nos permite buscar dentro de los mensajes de texto. Para ello vamos a hacer un Match Query. Vamos a implementar el método `searchMessage`.
 
@@ -125,13 +125,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 6. **Tarea:** Implementemos el método searchAuthor, en este caso la búsqueda será usando una wildcard.
 
-## Ejecutando la aplicación
+## Ejercicio 6. Ejecutando la aplicación
 
 Una vez terminado el ejercicio vamos a ver cómo funciona para ello tenemos que seguir los siguientes pasos.
 
 1. Arrancar el `docker-compose` con el comando `docker-compose up -d`
 2. Ejecutar el comando `mvn clean install`.
 3. Ejecutar el comando `mvn exec:java -Dexec.mainClass="com.alvaroagea.elk.practica3.App"`
+4. **Tarea:** Juega con la aplicación y utiliza otros tipos de búsqueda.
 
 
 
