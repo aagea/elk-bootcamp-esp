@@ -73,7 +73,13 @@ output.elasticsearch:
 7. Este fichero contiene la configuración de auditbeat.
 8. Esta configurado para monitorizar el directorio `/var/test`.
 9. Este es el directorio que hemos montado en el `docker-compose.yml`
-10. Vamos a arrancar la composición con el comando `docker-compose up`.
+10. Modificamos los permisos del fichero `auditbeat.yml`
+
+```bash
+sudo chown root auditbeat.yml
+```
+
+11. Vamos a arrancar la composición con el comando `docker-compose up`.
 
 ## Ejercicio 2. Explorando datos con Kibana.
 
