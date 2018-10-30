@@ -1,0 +1,35 @@
+version: '3'
+services:
+  es-pract4:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    container_name: es-pract4
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - es-data4:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  auditbeat-pract4:
+    image: docker.elastic.co/beats/auditbeat:6.4.2
+    container_name: auditbeat-pract4
+    volumes:
+      - ./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml
+      - ./test:/var/test
+  kibana-pract4:
+    image: docker.elastic.co/kibana/kibana:6.4.2
+    environment:
+      ELASTICSEARCH_URL: http://es-pract4:9200
+    ports:
+      - 5601:5601
+volumes:
+  es-data4:
+    driver: local
