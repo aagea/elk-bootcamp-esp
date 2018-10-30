@@ -19,6 +19,7 @@ services:
     ports:
       - 9200:9200
   auditbeat-pract4:
+    user: root
     image: docker.elastic.co/beats/auditbeat:6.4.2
     container_name: auditbeat-pract4
     volumes:
