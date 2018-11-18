@@ -3,7 +3,7 @@ auditbeat.modules:
   paths:
   - /var/test
   exclude_files:
-  - '(?i)\.sw[nop]$'
+  - '(?i)\.sw[nopx]$'
   - '~$'
   - '/\.git($|/)'
   scan_at_start: true
