@@ -1,50 +1,15 @@
 # Practica 8: probando Kibana
 
-En esta práctica vamos a probar el servicio Metricbeat, para ello vamos a monitorizar los procesos de Docker.
+Esta práctica se compone de dos partes, un repaso de metrics, donde vamos a instalar Filebeats, Metricbeats, Hearbeats, ElasticSearch y Kibana. Ademas lanzaremos un servicio NGINX que servirá contenido estático y nos servirá para capturar sus logs. La segunda parte del ejercicio consistirá en usar Kibana para crear un dashboard que nos muestre el estado de nuestra máquina.
 
 ## Ejercicio 1. Lanzando el compose.
 
-En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entender que estamos haciendo en el ejercicio.
+Lo primero que vamos a hacer es lanzar el compose para ello primero vamos a analizar como está implementado.
 
-1. Abrimos el fichero `docker-compose.yml` con el comando vim `docker-compose.yml`.
+1. Abrimos el fichero `docker-compose.yml` con el comando `vim docker-compose.yml`.
 
 ```yaml
-version: '3'
-services:
-  es-pract8:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract7
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - es-data5:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-  metricbeat-pract7:
-    user: root
-    image: docker.elastic.co/beats/metricbeat:6.4.2
-    container_name: metricbeat-pract7
-    volumes:
-      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      
-  kibana-pract7:
-    image: docker.elastic.co/kibana/kibana:6.4.2
-    environment:
-      ELASTICSEARCH_URL: http://es-pract7:9200
-    ports:
-      - 5601:5601
-volumes:
-  es-data5:
-    driver: local
+<< DOCKER-COMPOSE >>
 ```
 
 2. Como podemos ver arrancamos tres servicios: ElasticSearch, Metricbeat y Kibana.
