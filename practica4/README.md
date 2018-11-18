@@ -88,7 +88,7 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
 1. En un navegador abrimos la URL http://localhost:5601
 2. En el navegador aparecerá el dashboard de Kibana, hacemos click en discovery.
 3. Nos aparecerá el menú de crear un índex pattern.
-4. Ponemos el texto `audit` y damos a `Next step`.
+4. Ponemos el texto `audit*` y damos a `Next step`.
 5. En el menú seleccionamos `@timestamp`como unidad de tiempo y pulsamos `Create index pattern`.
 6. Volvemos a pulsa en el menú discovery.
 7. Ahora podemos explorar los datos generados por Auditbeat.

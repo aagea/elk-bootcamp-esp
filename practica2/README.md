@@ -243,14 +243,107 @@ curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json
 ```
 
 5. Pregunta: ¿Cuántas mujeres hay en la empresa?
+
+```bash
+curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+    	"match": {"gender":"F"}
+    }
+}'
+```
+
 6. Pregunta: ¿Cuántas mujeres viven en MA or WA?
-7. Pregunta: ¿Cuántos hombre tiene un saldo mayor  que 30000$?
+
+```bash
+curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+    	"bool": {
+         	"filter": {
+                "match": {"gender": "f"}
+         	},
+            "should": [
+                {"match": { "state":"WA"}},
+                {"match": { "state":"MA"}}
+             ],
+            "minimum_should_match" : 1
+    	}
+    }
+}'
+```
+
+7. Pregunta: ¿Cuántos hombres tiene un saldo mayor  que 30000$?
+
+```bash
+curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+    	"bool": {
+         	"must": [{
+                "match": {
+                	"gender": "f"
+                }},
+                {"range": {
+                    "balance": {
+                        "from":30000
+                    }
+                }}
+                ]
+         	}
+         }
+	}    
+}'
+```
+
+
+
 8. Pregunta: ¿Podemos borrar sólo los hombres por debajo de los 5000$?
+
+```bash
+curl -X POST "localhost:9200/bank/_doc/_delete_by_query" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+    	"bool": {
+         	"must": [{
+                "match": {
+                	"gender": "m"
+                }},
+                {"range": {
+                    "balance": {
+                        "lte":5000
+                    }
+                }
+                }
+                ]
+         	}
+         }
+	}    
+}'
+```
+
 9. Pregunta: ¿Cuántas mujeres tienes más de 30 años?
 
-
-
-
+```bash
+curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+    	"bool": {
+         	"must": [{
+                "match": {
+                	"gender": "f"
+                }},
+                {"range": {
+                    "age": {
+                        "gte":40
+                    }
+                }}
+                ]
+         	}
+         }
+	}    
+}'
+```
 
 
 

@@ -55,7 +55,7 @@ Después de haber revisado los diferentes documentos, vamos a indexar un documen
 1. Lo primero vamos a crear un objeto `IndexRequest`, que contenga los campo requeridos.
 
 ```java
-IndexRequest indexRequest = new IndexRequest("message")
+IndexRequest indexRequest = new IndexRequest("message","_doc")
                 .source("author", author,
                         "date", date,
                         "message", message);
