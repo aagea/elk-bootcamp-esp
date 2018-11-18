@@ -12,5 +12,5 @@ filebeat.inputs:
     ids:
     - '*'
 output.logstash:
-  hosts: ["localhost:5044"]
+  hosts: ["logstash-pract9:5044"]
 
