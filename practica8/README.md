@@ -1,4 +1,4 @@
-# Practica 7: probando Metricbeat
+# Practica 8: probando Kibana
 
 En esta práctica vamos a probar el servicio Metricbeat, para ello vamos a monitorizar los procesos de Docker.
 
@@ -11,7 +11,7 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 ```yaml
 version: '3'
 services:
-  es-pract7:
+  es-pract8:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
     container_name: es-pract7
     environment:
@@ -35,7 +35,7 @@ services:
     container_name: metricbeat-pract7
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
+      
   kibana-pract7:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:

@@ -15,16 +15,20 @@ En esta práctica creamos un proyecto en Java para acceder a la API de ElasticSe
 
 ## Práctica 4: probando Auditbeat
 
-En este práctica utilizamos Audibeat para monitorizar el estado de un directorio. 
+En esta práctica utilizamos Audibeat para monitorizar el estado de un directorio. 
 
 ## Práctica 5: probando Filebeat
 
-En este práctica utilizamos Filebeat para indexar los logs generado por docker.
+En esta práctica utilizamos Filebeat para indexar los logs generado por docker.
 
 ## Práctica 6: probando Hearbeat
 
-En este práctica utilizamos Heartbe para monitorizar el estado del servicio ElasticSearch.
+En esta práctica utilizamos Heartbeat para monitorizar el estado del servicio ElasticSearch.
 
 ## Práctica 7: probando Metricsbeat
 
-En este práctica utilizamos Heartbe para monitorizar las metricas de sistema de docker.
+En esta práctica utilizamos Metricbeat para monitorizar las metricas de sistema de docker.
+
+## Práctica 8: probando Kibana
+
+En esta práctica combinaremos todas las metricas para extraer la información de nuestros docker y trabajaremos con Kibana para crear un dashboard donde visualizar toda la información.

@@ -24,6 +24,7 @@ services:
     container_name: metricbeat-pract7
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+      - /var/run/docker.sock:/var/run/docker.sock
   kibana-pract7:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
