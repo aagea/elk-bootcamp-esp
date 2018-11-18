@@ -30,7 +30,7 @@ services:
       - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
       - ./logs/nginx/:/var/log/nginx/
     depends_on:
-      elasticsearch:  { condition: service_healthy }
+      es-pract8:  { condition: service_healthy }
   metricbeat-pract8:
     user: root
     image: docker.elastic.co/beats/metricbeat:6.4.2
@@ -39,7 +39,7 @@ services:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      elasticsearch:  { condition: service_healthy }
+      es-pract8:  { condition: service_healthy }
   heartbeat-pract8:
     user: root
     image: docker.elastic.co/beats/heartbeat:6.4.2
@@ -47,7 +47,7 @@ services:
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
     depends_on:
-      elasticsearch:  { condition: service_healthy }
+      es-pract8:  { condition: service_healthy }
   kibana-pract8:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
