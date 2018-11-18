@@ -13,4 +13,4 @@ metricbeat.modules:
   period: 10s
   enabled: true
 output.elasticsearch:
-  hosts: ["es-pract7:9200"]
+  hosts: ["es-pract8:9200"]

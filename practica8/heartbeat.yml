@@ -1,10 +1,10 @@
 heartbeat.monitors:
 - type: http
   schedule: '@every 5s'
-  urls: ["http://es-pract6:9200"]
+  urls: ["http://es-pract8:9200"]
   check.request:
     method: "GET"
   check.response:
     status: 200
 output.elasticsearch:
-  hosts: ["es-pract6:9200"]
+  hosts: ["es-pract8:9200"]
