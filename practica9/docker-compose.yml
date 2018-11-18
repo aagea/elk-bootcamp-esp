@@ -20,7 +20,7 @@ services:
       - 9200:9200
   logstash-pract9:
     user: root
-    image: docker.elastic.co/logstash/logstash:6.4.3
+    image: docker.elastic.co/logstash/logstash-oss:6.4.3
     container_name: logstash-pract9
     volumes:
       - ./pipeline:/usr/share/logstash/pipeline/
