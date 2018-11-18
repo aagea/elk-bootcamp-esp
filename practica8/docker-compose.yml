@@ -29,7 +29,6 @@ services:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
       - ./logs/nginx/:/var/log/nginx/
-    depends_on: ["es-pract8"]
   metricbeat-pract8:
     user: root
     image: docker.elastic.co/beats/metricbeat:6.4.2
@@ -37,14 +36,12 @@ services:
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
       - /var/run/docker.sock:/var/run/docker.sock
-    depends_on: ["es-pract8"]
   heartbeat-pract8:
     user: root
     image: docker.elastic.co/beats/heartbeat:6.4.2
     container_name: heartbeat-pract8
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
-    depends_on: ["es-pract8"]
   kibana-pract8:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
