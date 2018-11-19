@@ -32,3 +32,11 @@ En esta práctica utilizamos Metricbeat para monitorizar las metricas de sistema
 ## Práctica 8: probando Kibana
 
 En esta práctica combinaremos todas las metricas para extraer la información de nuestros docker y trabajaremos con Kibana para crear un dashboard donde visualizar toda la información.
+
+## Práctica 9: probando LogStash
+
+En esta práctica utilizaremo un fichero de logs de ejemplo para demostrar las capacidades de LogStash para transformar las trazas de log.
+
+## Practica Final: montando un stack completo.
+
+Una practica abierta que supone un reto al tener que combinar muchas fuentes de datos. 
