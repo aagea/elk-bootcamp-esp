@@ -30,24 +30,13 @@ services:
     container_name: filebeat-pract9
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
-      - ./logs/nginx/:/var/log/nginx/
+      - ./data/:/var/log/pratc9/
   kibana-pract9:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract9:9200
+     ELASTICSEARCH_URL: http://es-pract9:9200
     ports:
       - 5601:5601
-  nginx-pract9:
-    container_name: nginx-pract9
-    hostname: nginx
-    build: ./nginx
-    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
-    ports: ['8080:80']
-    command: nginx -g 'daemon off;'
-    volumes:
-      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
-      - ./logs/nginx/:/var/log/nginx/
 volumes:
   es-data9:
     driver: local

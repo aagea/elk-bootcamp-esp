@@ -1,9 +1,7 @@
-filebeat.modules:
-- module: nginx
-  access:
-    var.paths: ["/var/log/nginx/access.log*"]
-  error:
-    var.paths: ["/var/log/nginx/error.log*"]
+filebeat.inputs:
+- type: log
+  paths:
+    - /var/log/pratc9/*.log 
 output.logstash:
   hosts: ["logstash-pract9:5044"]
 
