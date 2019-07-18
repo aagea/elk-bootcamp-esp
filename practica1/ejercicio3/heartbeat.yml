@@ -1,0 +1,10 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 10s'
+  urls: ["http://web:8080/"]
+  check.request:
+    method: "GET"
+  check.response:
+    status: 200
+output.elasticsearch:
+  hosts: ["es-pract1:9200"]

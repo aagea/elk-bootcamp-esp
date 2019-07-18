@@ -1,0 +1,34 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+     - "8080:8080"
+  heartbeat-pract1:
+    user: root
+    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
+    container_name: heartbeat-pract1
+    volumes:
+      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+  es-pract1:    
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana-pract1:
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    environment:
+      ELASTICSEARCH_URL: http://es-pract1:9200
+    ports:
+      - 5601:5601
+volumes:
+  esdata1:
+    driver: local

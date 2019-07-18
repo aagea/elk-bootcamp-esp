@@ -195,7 +195,7 @@ Ahora vamos a jugar con otros comandos de docker compose.
 
 Ya hemos lanzado nuestra primera composición, ahora vamos a hacer algo más interesante vamos a lanzar nuestro primer cluster de dos máquinas de elasticsearch.
 
-### Lanzando un cluster
+### Lanzando el servicio
 
 1. Lo primero volvemos a nuestro carpeta de trabajo.
 2. Después nos creamos una carpeta.
@@ -211,12 +211,10 @@ $ cd ejercicio2
 version: '2.2'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
     container_name: elasticsearch
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
@@ -230,9 +228,8 @@ volumes:
     driver: local
 ```
 
-4. Lo lanzamos y pumm no funciona…
-5. Pregunta: ¿Como lo arreglamos?
-6. Para comprobar que funciona correctamente debemos ejecutar el siguiente comando.
+4. Lanzamos la composición con el comando `docker-compose up`.
+5. Para comprobar que funciona correctamente debemos ejecutar el siguiente comando.
 
 ```bash
 $ http "http://127.0.0.1:9200/_cat/health"
@@ -276,4 +273,75 @@ $ curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application
   ]
 }'
 ```
+
+## Ejercicio 3. Ejecutando un stack de ELK.
+
+Una vez que me hemos arrancado ElasticSearch y hemos comprobado que funciona, vamos a arrancar el stack completo. Para ello vamos a arranca ElasticSearch y Kibana, y como fuente de datos utilizaremos el beat más sencillo, HeartBeat, que monitorizara el estado de un servicio NGINX.
+
+### Lanzando los servicios
+
+1. Lo primero que hacemos es entrar en la carpeta, que ya esta creada, llamada `ejercicio3`
+
+```bash
+$ cd ejercicio3
+```
+
+2. Abrimos el fichero `docker-compose.yml` con el comando vim `docker-compose.yml`.
+
+```yaml
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+     - "8080:8080"
+  heartbeat-pract1:
+    user: root
+    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
+    container_name: heartbeat-pract1
+    volumes:
+      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+  es-pract1:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana-pract1:
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    environment:
+      ELASTICSEARCH_URL: http://es-pract1:9200
+    ports:
+      - 5601:5601
+volumes:
+  esdata1:
+    driver: local
+```
+
+3. Cómo podemos ver se arrancan cuatro servicios: un nginx con contenido estático, ElasticSearch, Kibana y Heartbeats.
+
+4. lasticSearch se levanta de la forma habitual.
+
+5. Kibana se asocia al ElasticSearch ya levantado.
+
+6. Heartbeat tiene un punto de montaje `heartbeat.yml`.
+
+7. Este fichero contiene la configuración de heartbeat.
+
+8. Modificamos los permisos del fichero `hearbeat.yml`.
+
+9. ```bash
+   $ sudo chown root hearbeat.yml
+   ```
+
+9. Vamos a arrancar la composición con el comando `docker-compose up`.
+
+## 
 
