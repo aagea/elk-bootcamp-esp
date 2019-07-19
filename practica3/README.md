@@ -6,7 +6,7 @@ En esta práctica vamos a probar cómo se usa la librería de ElasticSearch con 
 
 En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más fácil trabajar con el código Java.
 
-1. Lo primero que vamos a hacer es chequear que el entorno funciona. Para ello ejecutamos `mvn clean install` desde la carpeta de la práctica.
+1. Lo primero que vamos a hacer es chequear que el entorno funciona. Para ello ejecutamos `mvn clean install` desde la carpeta de la práctica. Deberán fallar los tests.
 2. Este comando se descargará las dependencias y compilara el proyecto, el resultado debería ser correcto.
 3. Ahora para limpiar la carpeta ejecutamos `mvn clean`.
 4. Ahora abrimos IntelliJ,
@@ -29,9 +29,9 @@ Lo primero que vamos a hacer es comprobar las dependencias que tenemos instalada
 
 ```xml
 <dependency>
-    <groupId>org.elasticsearch.client</groupId>
-    <artifactId>elasticsearch-rest-high-level-client</artifactId>
-    <version>7.2.0</version>
+  <groupId>org.elasticsearch.client</groupId>
+  <artifactId>elasticsearch-rest-high-level-client</artifactId>
+  <version>${elasticsearch.version}</version>
 </dependency>
 ```
 
@@ -42,9 +42,10 @@ Lo primero que vamos a hacer es comprobar las dependencias que tenemos instalada
 En este apartado vamos a repasar la dos clases que están incluidas en el repositorio: `App` y `Controller`.
 
 1. La clase `App` contiene la lógica de cómo se ejecutan los comandos desde consola.
-2. La clase `controller` contiene los métodos que tienen que acceder a ElasticSearch.
-3. Esta clase tiene una instancia del cliente de alto nivel.
-4. **Tarea:** Revisa los métodos con los que cuenta el cliente rest en esta [URL](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high-getting-started.html)
+2. La clase `controller` es una clase Abstracta que contiene las llamadas de ElasticSearch.
+3. La clase `Practica3Controller` es la clase que vamos a implementar.
+4. Esta clase tiene una instancia del cliente de alto nivel.
+5. **Tarea:** Revisa los métodos con los que cuenta el cliente rest en esta [URL](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high-getting-started.html)
 
 ## Ejercicio 4. Indexando los elementos
 
@@ -53,10 +54,10 @@ Después de haber revisado los diferentes documentos, vamos a indexar un documen
 1. Lo primero vamos a crear un objeto `IndexRequest`, que contenga los campo requeridos.
 
 ```java
-IndexRequest indexRequest = new IndexRequest("message","_doc")
-                .source("author", author,
-                        "date", date,
-                        "message", message);
+IndexRequest indexRequest = new IndexRequest(Controller.MESSAGE_INDEX)
+                .source(Controller.AUTHOR_FIELD, message.getAuthor(),
+                        Controller.TIME_FIELD, message.getTime(),
+                        Controller.MESSAGE_FIELD, message.getMessage());
 ```
 
 2. Con este método hemos creado el cuerpo de la query que queremos mandar al servidor.
@@ -69,7 +70,7 @@ IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT)
 4. Por último, imprimimos por pantalla el resultado de la query.
 
 ```java
-System.out.println(indexResponse.toString());
+logger.debug(indexResponse.toString());
 ```
 
 5. Recordar añadir todos los import necesarios, para ello debéis poner el cursor encima de la clase y pulsar `alt+enter`.
@@ -95,21 +96,32 @@ SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 2. Ahora con `QueryBuilders` creamos la consulta que queremos ejecutar.
 
 ```java
-sourceBuilder.query(QueryBuilders.matchQuery("message", message));
+sourceBuilder.query(QueryBuilders.matchQuery(Controller.MESSAGE_FIELD, message));
 ```
 
 3. Creamos el `SearchRequest` y la ejecutamos.
 
 ```java
- SearchRequest searchRequest = new SearchRequest("message")
+SearchRequest searchRequest = new SearchRequest(Controller.MESSAGE_INDEX)
                 .source(sourceBuilder);
-  SearchResponse response = client.search(searchRequest,RequestOptions.DEFAULT);
+SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
 ```
 
-4. Por último iteramos por todos los elementos y los imprimimos por pantalla.
+4. Por último iteramos por todos los elementos y los introducimos en una lista.
 
 ```java
- response.getHits().iterator().forEachRemaining((doc) -> System.out.println(doc.getSourceAsString()));
+List<Message> messages = new LinkedList<>();
+response.getHits().iterator().forEachRemaining(it -> {
+  Map<String, Object> source = it.getSourceAsMap();
+  messages.add(
+    new Message(
+      Instant.parse(source.get(Controller.TIME_FIELD).toString()),
+      source.get(Controller.AUTHOR_FIELD).toString(),
+      source.get(Controller.MESSAGE_FIELD).toString()
+    )
+  );
+});
+return messages;
 ```
 
 5. Recordar añadir todos los import necesarios, para ello debéis poner el cursor encima de la clase y pulsar `alt+enter`.
@@ -119,6 +131,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 ```
 
 6. **Tarea:** Implementemos el método searchAuthor, en este caso la búsqueda será usando una wildcard.

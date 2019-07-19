@@ -3,6 +3,7 @@ package com.alvaroagea.elk.practica3;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
@@ -16,16 +17,17 @@ import java.io.IOException;
 import java.rmi.UnexpectedException;
 import java.util.List;
 
-abstract class Controller {
+public abstract class Controller {
 
 
-    private static final String MESSAGE_INDEX = "messages";
+    static final String MESSAGE_INDEX = "messages";
 
-    private static final String MESSAGE_FIELD = "message";
-    private static final String TIME_FIELD = "time";
-    private static final String AUTHOR_FIELD = "author";
+    static final String MESSAGE_FIELD = "message";
+    static final String TIME_FIELD = "time";
+    static final String AUTHOR_FIELD = "author";
 
-    private final RestHighLevelClient client = new RestHighLevelClient(
+
+    final RestHighLevelClient client = new RestHighLevelClient(
             RestClient.builder(new HttpHost("localhost", 9200, "http")));
 
 
@@ -71,6 +73,7 @@ abstract class Controller {
                 builder.startObject(AUTHOR_FIELD);
                 {
                     builder.field("type", "keyword");
+                    builder.field("store", true);
                 }
                 builder.endObject();
 
@@ -90,7 +93,8 @@ abstract class Controller {
                         .put("index.number_of_replicas", 1)
                 );
         try {
-            AcknowledgedResponse acknowledgedResponse = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+            AcknowledgedResponse acknowledgedResponse = client.indices().create(createIndexRequest,
+                    RequestOptions.DEFAULT);
             if (!acknowledgedResponse.isAcknowledged()) {
                 throw new UnexpectedException("The command has failed.");
             }
@@ -108,6 +112,12 @@ abstract class Controller {
         if (!acknowledgedResponse.isAcknowledged()) {
             throw new UnexpectedException("The command has failed.");
         }
+    }
+
+    final void flush() throws IOException {
+        FlushRequest flushRequest = new FlushRequest(MESSAGE_INDEX);
+        client.indices().flush(flushRequest,
+                RequestOptions.DEFAULT);
     }
 
     /**

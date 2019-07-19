@@ -8,7 +8,7 @@ import java.util.List;
 
 public class App {
 
-    private static Controller controller = Practica3Controller.get();
+    private static Controller controller = new Practica3Controller();
 
     public static void main(String[] args) throws IOException {
         readCommand();
@@ -16,6 +16,7 @@ public class App {
 
 
     private static void readCommand() throws IOException {
+        controller.init();
         String command;
         boolean exit = false;
         while (!exit) {
