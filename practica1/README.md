@@ -208,7 +208,7 @@ $ cd ejercicio2
 3. Creamos el fichero `docker-compose.yml`.
 
 ```yaml
-version: '2.2'
+version: '3'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
