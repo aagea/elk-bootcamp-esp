@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.List;
 
 public class App {
 
-    private static Controller controller = new Controller();
+    private static Controller controller = Practica3Controller.get();
 
     public static void main(String[] args) throws IOException {
         readCommand();
@@ -56,19 +57,31 @@ public class App {
         System.out.println("Text:");
         String data = readLine();
 
-        controller.index(Instant.now(), name, data);
+        controller.index(new Message(Instant.now(), name, data));
     }
 
     private static void searchMessage() throws IOException {
         System.out.println("Message:");
         String message = readLine();
-        controller.searchMessage(message);
+        final List<Message> messages = controller.searchMessage(message);
+        printMessages(messages);
     }
 
     private static void searchAuthor() throws IOException {
         System.out.println("Author:");
         String author = readLine();
-        controller.searchAuthor(author);
+        final List<Message> messages = controller.searchAuthor(author);
+        printMessages(messages);
+    }
+
+    private static void printMessages(List<Message> messages){
+        System.out.printf("Found messages: %d", messages.size());
+        System.out.println();
+        messages.forEach(msg -> {
+            System.out.printf("Time: %s\tAuthor: %s\tMessage: %s", msg.getTime().toString(),
+                    msg.getAuthor(), msg.getMessage());
+            System.out.println();
+        });
     }
 
     private static String readLine() throws IOException {

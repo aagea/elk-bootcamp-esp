@@ -28,13 +28,11 @@ Lo primero que vamos a hacer es comprobar las dependencias que tenemos instalada
 1. Para ello vamos a abrir el fichero `pom.xml`. Allí podemos comprobar que nuestro código esta usando la librería `lasticsearch-rest-high-level-client` la librería `transport ` estará deprecada a partir de la versión 7.0.0.
 
 ```xml
-<dependencies>
-    <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        <version>6.4.2</version>
-    </dependency>
-</dependencies>
+<dependency>
+    <groupId>org.elasticsearch.client</groupId>
+    <artifactId>elasticsearch-rest-high-level-client</artifactId>
+    <version>7.2.0</version>
+</dependency>
 ```
 
 2. Ahora vamos a al fichero `com.alvaroagea.elk.practica3.Controller` éste contiene todos los métodos que gestionan el indice.
@@ -50,7 +48,7 @@ En este apartado vamos a repasar la dos clases que están incluidas en el reposi
 
 ## Ejercicio 4. Indexando los elementos
 
-Después de haber revisado los diferentes documentos, vamos a indexar un documento. Para ello vamos a modificar el método índex que se encuentra en la clase `controller`.
+Después de haber revisado los diferentes documentos, vamos a indexar un documento. Para ello vamos a modificar el método `index` que se encuentra en la clase `Practica3Controller`.
 
 1. Lo primero vamos a crear un objeto `IndexRequest`, que contenga los campo requeridos.
 
