@@ -11,6 +11,8 @@ import java.util.List;
 
 public class ControllerTest {
 
+    private static int NUM_ITERATION =10;
+
     private static Controller controller = new Practica3Controller();
 
     @BeforeClass
@@ -23,7 +25,10 @@ public class ControllerTest {
         controller.index(msg2);
 
         controller.flush();
-        Thread.sleep(5000);
+
+        for (int i = 0; i < NUM_ITERATION && controller.count() != 2; i++) {
+            Thread.sleep(1000);
+        }
     }
 
 

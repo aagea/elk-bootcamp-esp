@@ -8,6 +8,8 @@ import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -118,6 +120,14 @@ public abstract class Controller {
         FlushRequest flushRequest = new FlushRequest(MESSAGE_INDEX);
         client.indices().flush(flushRequest,
                 RequestOptions.DEFAULT);
+    }
+
+    final long count() throws IOException {
+
+        CountRequest countRequest = new CountRequest(MESSAGE_INDEX);
+
+        final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+        return countResponse.getCount();
     }
 
     /**
