@@ -1,0 +1,16 @@
+auditbeat.modules:
+- module: file_integrity
+  paths:
+  - /var/test
+  exclude_files:
+  - '(?i)\.sw[nopx]$'
+  - '~$'
+  - '/\.git($|/)'
+  scan_at_start: true
+  scan_rate_per_sec: 50 MiB
+  max_file_size: 100 MiB
+  hash_types: [sha1]
+  recursive: false
+output.elasticsearch:
+  hosts: ["es-pract4:9200"]
+

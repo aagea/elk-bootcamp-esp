@@ -1,0 +1,10 @@
+metricbeat.modules:
+- module: docker
+  metricsets:
+    - "cpu"
+    - "diskio"
+  hosts: ["unix:///var/run/docker.sock"]
+  period: 10s
+  enabled: true
+output.elasticsearch:
+  hosts: ["es-pract8:9200"]

@@ -1,0 +1,16 @@
+filebeat.modules:
+- module: nginx
+  access:
+    var.paths: ["/var/log/nginx/access.log*"]
+  error:
+    var.paths: ["/var/log/nginx/error.log*"]
+filebeat.inputs:
+- type: docker
+  enabled: true
+  containers:
+    path: "/var/lib/docker/containers"
+    ids:
+    - '*'
+output.elasticsearch:
+  hosts: ["es-pract8:9200"]
+
