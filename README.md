@@ -13,29 +13,34 @@ En esta práctica se repasarán operaciones básicas que se podrán hacer con El
 
 En esta práctica creamos un proyecto en Java para acceder a la API de ElasticSearch.
 
-## Práctica 4: probando Auditbeat
+## Práctica 4: practica de filtrado
+
+En esta práctica utilizaremos la Boolean Queries para filtra diferentes tipos de eventos.
+
+## Práctica 5: probando Auditbeat
 
 En esta práctica utilizamos Audibeat para monitorizar el estado de un directorio. 
 
-## Práctica 5: probando Filebeat
+## Práctica 6: probando Filebeat
 
 En esta práctica utilizamos Filebeat para indexar los logs generado por docker.
 
-## Práctica 6: probando Hearbeat
+## Práctica 7: probando Hearbeat
 
 En esta práctica utilizamos Heartbeat para monitorizar el estado del servicio ElasticSearch.
 
-## Práctica 7: probando Metricsbeat
+## Práctica 8: probando Metricsbeat
 
 En esta práctica utilizamos Metricbeat para monitorizar las metricas de sistema de docker.
-
-## Práctica 8: probando Kibana
-
-En esta práctica combinaremos todas las metricas para extraer la información de nuestros docker y trabajaremos con Kibana para crear un dashboard donde visualizar toda la información.
 
 ## Práctica 9: probando LogStash
 
 En esta práctica utilizaremo un fichero de logs de ejemplo para demostrar las capacidades de LogStash para transformar las trazas de log.
+
+## Práctica 10: probando Kibana
+
+En esta práctica combinaremos todas las metricas para extraer la información de nuestros docker y trabajaremos con Kibana para crear un dashboard donde visualizar toda la información.
+
 
 ## Practica Final: montando un stack completo.
 

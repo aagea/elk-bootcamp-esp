@@ -1,8 +1,8 @@
 version: '3'
 services:
-  es-pract6:
+  es-pract5:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract6
+    container_name: es-pract5
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -18,16 +18,17 @@ services:
       - es-data5:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-  heartbeat-pract6:
+  filebeat-pract5:
     user: root
-    image: docker.elastic.co/beats/heartbeat:6.4.2
-    container_name: heartbeat-pract6
+    image: docker.elastic.co/beats/filebeat:6.4.2
+    container_name: filebeat-pract5
     volumes:
-      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
-  kibana-pract6:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
+  kibana-pract5:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract6:9200
+      ELASTICSEARCH_URL: http://es-pract5:9200
     ports:
       - 5601:5601
 volumes:

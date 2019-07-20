@@ -1,6 +1,6 @@
-# Practica 7: probando Metricbeat
+# Practica 6: probando Heartbeat
 
-En esta práctica vamos a probar el servicio Metricbeat, para ello vamos a monitorizar los procesos de Docker.
+En esta práctica vamos a probar el servicio Heart, para ello vamos a monitorizar el estado de ElasticSearch.
 
 ## Ejercicio 1. Lanzando el compose.
 
@@ -11,9 +11,9 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 ```yaml
 version: '3'
 services:
-  es-pract7:
+  es-pract6:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract7
+    container_name: es-pract6
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -29,17 +29,16 @@ services:
       - es-data5:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-  metricbeat-pract7:
+  heartbeat-pract6:
     user: root
-    image: docker.elastic.co/beats/metricbeat:6.4.2
-    container_name: metricbeat-pract7
+    image: docker.elastic.co/beats/heartbeat:6.4.2
+    container_name: heartbeat-pract6
     volumes:
-      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-  kibana-pract7:
+      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+  kibana-pract6:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract7:9200
+      ELASTICSEARCH_URL: http://es-pract6:9200
     ports:
       - 5601:5601
 volumes:
@@ -47,36 +46,30 @@ volumes:
     driver: local
 ```
 
-2. Como podemos ver arrancamos tres servicios: ElasticSearch, Metricbeat y Kibana.
+2. Como podemos ver arrancamos tres servicios: ElasticSearch, Heartbeat y Kibana.
 3. ElasticSearch se levanta de la forma habitual.
 4. Kibana se asocia al ElasticSearch ya levantado.
-5. Filebeat tiene un punto de montaje `metricbeat.yml`.
-6. Vamos a abrir el fichero `metricbeat.yml`.
+5. Filebeat tiene un punto de montaje `heartbeat.yml`.
+6. Vamos a abrir el fichero `heartbeat.yml`.
 
 ```yaml
-metricbeat.modules:
-- module: docker
-  metricsets:
-    - "container"
-    - "cpu"
-    - "diskio"
-    - "healthcheck"
-    - "info"
-    - "image"
-    - "memory"
-    - "network"
-  hosts: ["unix:///var/run/docker.sock"]
-  period: 10s
-  enabled: true
+heartbeat.monitors:
+- type: http
+  schedule: '@every 5s'
+  urls: ["http://es-pract6:9200/service/status"]
+  check.request:
+    method: "GET"
+  check.response:
+    status: 200
 output.elasticsearch:
-  hosts: ["es-pract7:9200"]
+  hosts: ["es-pract6:9200"]
 ```
 
-7. Este fichero contiene la configuración de metricbeat
-8. Modificamos los permisos del fichero `metricbeat.yml` 
+7. Este fichero contiene la configuración de heartbeat.
+8. Modificamos los permisos del fichero `hearbeat.yml` 
 
 ```bash
-sudo chown root metricbeat.yml
+sudo chown root hearbeat.yml
 ```
 
 7. Vamos a arrancar la composición con el comando `docker-compose up`.
@@ -88,8 +81,8 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
 1. En un navegador abrimos la URL http://localhost:5601
 2. En el navegador aparecerá el dashboard de Kibana, hacemos click en discovery.
 3. Nos aparecerá el menú de crear un índex pattern.
-4. Ponemos el texto metricbeat` y damos a `Next step`.
+4. Ponemos el texto `heartbeat` y damos a `Next step`.
 5. En el menú seleccionamos `@timestamp`como unidad de tiempo y pulsamos `Create index pattern`.
 6. Volvemos a pulsa en el menú discovery.
-7. Ahora podemos explorar los datos generados por metricbeat.
+7. Ahora podemos explorar los datos generados por Heartbeat.
 8. **Tarea:** Prueba las diferentes visualizaciones de Kibana.

@@ -1,8 +1,8 @@
 version: '3'
 services:
-  es-pract5:
+  es-pract4:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract5
+    container_name: es-pract4
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -15,24 +15,22 @@ services:
         soft: 65536
         hard: 65536
     volumes:
-      - es-data5:/usr/share/elasticsearch/data
+      - es-data4:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-  filebeat-pract5:
+  auditbeat-pract4:
     user: root
-    image: docker.elastic.co/beats/filebeat:6.4.2
-    container_name: filebeat-pract5
+    image: docker.elastic.co/beats/auditbeat:6.4.2
+    container_name: auditbeat-pract4
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
-  kibana-pract5:
+      - ./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml
+      - ./test:/var/test
+  kibana-pract4:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract5:9200
+      ELASTICSEARCH_URL: http://es-pract4:9200
     ports:
       - 5601:5601
 volumes:
-  es-data5:
+  es-data4:
     driver: local
-
-
