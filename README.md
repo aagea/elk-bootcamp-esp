@@ -13,9 +13,13 @@ En esta práctica se repasarán operaciones básicas que se podrán hacer con El
 
 En esta práctica creamos un proyecto en Java para acceder a la API de ElasticSearch.
 
-## Práctica 4: practica de filtrado
+## Práctica 4: usando Term-level queries
 
-En esta práctica utilizaremos la Boolean Queries para filtra diferentes tipos de eventos.
+En esta práctica, vamos a probar a crear term-level queries o filtros para manejar documentos en ElasticSearch.
+
+## Práctica 4a: usando Match queries 
+
+En esta practica vamos a probar a utilizar la match queries y cómo se puede combinar.
 
 ## Práctica 5: probando Auditbeat
 

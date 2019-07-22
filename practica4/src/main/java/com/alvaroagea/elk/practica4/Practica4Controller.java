@@ -3,11 +3,17 @@ package com.alvaroagea.elk.practica4;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 final class Practica4Controller extends EventController {
 
@@ -24,7 +30,7 @@ final class Practica4Controller extends EventController {
     }
 
     @Override
-    public Optional<List<Event>> lastDistinct(String id, List<String> tags, int limit, Optional<Instant> before) {
+    public Optional<List<Event>> lastDistinct(String id, List<String> tags, int limit, Instant before) {
         return Optional.empty();
     }
 

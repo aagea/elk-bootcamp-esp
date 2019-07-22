@@ -74,7 +74,7 @@ abstract class EventController {
      * @param before Before of this date.
      * @return The list of events.
      */
-    abstract Optional<List<Event>> lastDistinct(String id, List<String> tags, int limit, Optional<Instant> before);
+    abstract Optional<List<Event>> lastDistinct(String id, List<String> tags, int limit, Instant before);
 
     /**
      * Take the list of the occurrences between two dates.

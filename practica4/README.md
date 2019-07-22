@@ -1,6 +1,6 @@
-# Practica 3: usando ElasticSearch con Java
+# Práctica 4: usando Term-level queries
 
-En esta práctica vamos a probar cómo se usa la librería de ElasticSearch con Java, para ello vamos a usar un código de ejemplo. Nuestro trabajo va a se completar el código.
+En esta práctica, vamos a probar a crear term-level queries o filtros para manejar documentos en ElasticSearch. 
 
 ## Ejercicio 1. Añadiendo el proyecto
 
@@ -21,133 +21,106 @@ En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más 
 13. Pulsamos `finish`.
 14. Ya esta ahora ya tenemos nuestro proyecto importado en IntelliJ. 
 
-## Ejercicio 2. Revisando las dependencias
+## Ejercicio 2. Repaso del código
 
-Lo primero que vamos a hacer es comprobar las dependencias que tenemos instaladas.
+En este apartado vamos a repasar la dos clases que están incluidas en el repositorio: `Practica4Controller` y `EventController`.
 
-1. Para ello vamos a abrir el fichero `pom.xml`. Allí podemos comprobar que nuestro código esta usando la librería `lasticsearch-rest-high-level-client` la librería `transport ` estará deprecada a partir de la versión 7.0.0.
-
-```xml
-<dependency>
-  <groupId>org.elasticsearch.client</groupId>
-  <artifactId>elasticsearch-rest-high-level-client</artifactId>
-  <version>${elasticsearch.version}</version>
-</dependency>
-```
-
-2. Ahora vamos a al fichero `com.alvaroagea.elk.practica3.Controller` éste contiene todos los métodos que gestionan el indice.
-
-## Ejercicio 3. Repaso del código
-
-En este apartado vamos a repasar la dos clases que están incluidas en el repositorio: `App` y `Controller`.
-
-1. La clase `App` contiene la lógica de cómo se ejecutan los comandos desde consola.
-2. La clase `controller` es una clase Abstracta que contiene las llamadas de ElasticSearch.
-3. La clase `Practica3Controller` es la clase que vamos a implementar.
+2. La clase `EventController` es una clase Abstracta que contiene las llamadas de ElasticSearch.
+2. La clase `Event` es un clase que representa un evento en el sistema.
+3. La clase `Practica4Controller` es la clase que vamos a implementar.
 4. Esta clase tiene una instancia del cliente de alto nivel.
-5. **Tarea:** Revisa los métodos con los que cuenta el cliente rest en esta [URL](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high-getting-started.html)
 
-## Ejercicio 4. Indexando los elementos
+El objetivo de este proyecto es crear una clase que nos ayude a navegar entre los eventos de un timeline, agrupando esos evento en base a unos tags.
 
-Después de haber revisado los diferentes documentos, vamos a indexar un documento. Para ello vamos a modificar el método `index` que se encuentra en la clase `Practica3Controller`.
+## Ejercicio 3. Creando la función Last()
 
-1. Lo primero vamos a crear un objeto `IndexRequest`, que contenga los campo requeridos.
+La función `last(String id, List<String> tags, int limit, Instant before)` devuelve los últimos n elementos de un timeline concreto que contengan algunos de los tags asignado y que estén antes de una fecha dada. 
 
-```java
-IndexRequest indexRequest = new IndexRequest(Controller.MESSAGE_INDEX)
-                .source(Controller.AUTHOR_FIELD, message.getAuthor(),
-                        Controller.TIME_FIELD, message.getTime(),
-                        Controller.MESSAGE_FIELD, message.getMessage());
-```
+Para poder resolver este método vamos a utilizar una función boolean query. La boolean query contiene tres tipos de busqueda:
 
-2. Con este método hemos creado el cuerpo de la query que queremos mandar al servidor.
-3. Ahora debemos ejecutar la query. Para ello llamamos al `client` al método `index`.
++ **Must queries.** Son filtros que el documento **DEBE** cumplir
++ **Should queries.** Son filtros que el documento **DEBERIA** cumplir. Para hacer que al menos una de consulta sea obligatoria tendremos que modificar el parámetro `minimumShouldMatch`.
++ **Must not queries.** Son filtros que el documento **NO DEBE** cumplir, los resultado que pasen este filtro serán excluidos de los resultados. 
+
+1. Lo primero que vamos a hacer es crearlo el objeto resulta que vamos a devolver en caso de que todo vaya bien.
 
 ```java
-IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+List<Event> result = new LinkedList<>();
 ```
 
-4. Por último, imprimimos por pantalla el resultado de la query.
+2. Una vez hecho esto nos crearemos una instancia del Bool Query Builder y añadiremos el primer filtro **must**.
 
 ```java
-logger.debug(indexResponse.toString());
+BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
+	.must(QueryBuilders.termQuery(EventController.ID_FIELD, id));
 ```
 
-5. Recordar añadir todos los import necesarios, para ello debéis poner el cursor encima de la clase y pulsar `alt+enter`.
+3. Por cada uno de los tags añadiremos un filtro **should**.
 
 ```java
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.RequestOptions;
+for (String t : tags) {
+	boolQueryBuilder = boolQueryBuilder.should(
+  QueryBuilders.termQuery(EventController.TAG_FIELD, t));
+}
+
 ```
 
-5. Para chequear que todo esta bien ejecutar el comando `mvn clean install`.
+4. En caso de que el parámetro Before sea distinto de null, debemos otro filtro **must**.
 
-## Ejercicio 5. Buscando dentro de los mensajes
+```java
+if (before != null){
+	boolQueryBuilder = boolQueryBuilder.must(
+	QueryBuilders.rangeQuery(EventController.T2_FIELD).to(before));
+}
+```
 
-El siguiente paso va a ser implementar el método que nos permite buscar dentro de los mensajes de texto. Para ello vamos a hacer un Match Query. Vamos a implementar el método `searchMessage`.
+5. Modificamos el parámetro `minimumShouldMatch` para que el evento al menos contenga un tag.
 
-1. Lo primero que debemos hacer es que crear un objeto `SearchSourceBuilder`.
+```java
+boolQueryBuilder=boolQueryBuilder.minimumShouldMatch(1);
+```
+
+6. Creamos la llamada al API.
 
 ```java
 SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-```
-
-2. Ahora con `QueryBuilders` creamos la consulta que queremos ejecutar.
-
-```java
-sourceBuilder.query(QueryBuilders.matchQuery(Controller.MESSAGE_FIELD, message));
-```
-
-3. Creamos el `SearchRequest` y la ejecutamos.
-
-```java
-SearchRequest searchRequest = new SearchRequest(Controller.MESSAGE_INDEX)
+sourceBuilder.query(boolQueryBuilder)
+             .sort(EventController.T2_FIELD, SortOrder.DESC).size(limit);
+SearchRequest searchRequest = new SearchRequest(EventController.EVENT_INDEX)
                 .source(sourceBuilder);
-SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
 ```
 
-4. Por último iteramos por todos los elementos y los introducimos en una lista.
+7. Fíjate que hemos ordenado la consulta en orden descendente, sin embargo queremos que el orden sea siempre ascendente ¿por qué hemos hecho esto?
+8. Por último, recorremos el ResultSet y creamos la lista de eventos.
 
 ```java
-List<Message> messages = new LinkedList<>();
-response.getHits().iterator().forEachRemaining(it -> {
-  Map<String, Object> source = it.getSourceAsMap();
-  messages.add(
-    new Message(
-      Instant.parse(source.get(Controller.TIME_FIELD).toString()),
-      source.get(Controller.AUTHOR_FIELD).toString(),
-      source.get(Controller.MESSAGE_FIELD).toString()
-    )
-  );
-});
-return messages;
+try {
+  SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+  response.getHits().iterator().forEachRemaining(it -> {
+    Map<String, Object> source = it.getSourceAsMap();
+    result.add(
+      new Event(
+        source.get(EventController.ID_FIELD).toString(),
+        source.get(EventController.TAG_FIELD).toString(),
+        Instant.parse(source.get(EventController.T1_FIELD).toString()),
+        Instant.parse(source.get(EventController.T2_FIELD).toString())
+      )
+    );
+  });
+} catch (IOException e) {
+	return Optional.empty();
+}
+Collections.reverse(result);
+return Optional.of(result);
 ```
 
-5. Recordar añadir todos los import necesarios, para ello debéis poner el cursor encima de la clase y pulsar `alt+enter`.
+9. Arrancamos ElasticSearch utilizando el comando `docker-compose up`
+10. Probamos de nuevo los test, veremos cómo algunos de ellos ya pasan.
+11. Tarea: ¿porque hacemos un reverse de la lista?
 
-```java
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+## Ejercicio 4. Pasando los tests
 
-import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-```
-
-6. **Tarea:** Implementemos el método searchAuthor, en este caso la búsqueda será usando una wildcard.
-
-## Ejercicio 6. Ejecutando la aplicación
-
-Una vez terminado el ejercicio vamos a ver cómo funciona para ello tenemos que seguir los siguientes pasos.
-
-1. Arrancar el `docker-compose` con el comando `docker-compose up -d`
-2. Ejecutar el comando `mvn clean install`.
-3. Ejecutar el comando `mvn exec:java -Dexec.mainClass="com.alvaroagea.elk.practica3.App"`
-4. **Tarea:** Juega con la aplicación y utiliza otros tipos de búsqueda.
+Muy bien ya hemos hecho un ejemplo, ahora el resto de la practica es rellenar el resto de métodos, y conseguir que los tests pasen. Recordad los tipos diferentes de filtros y cómo debemos ordenar los resultados para filtrar.
 
 
 
