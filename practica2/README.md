@@ -83,11 +83,9 @@ curl -X PUT "localhost:9200/test" -H 'Content-Type: application/json' -d'
         "number_of_shards" : 1
     },
     "mappings" : {
-        "_doc" : {
-            "properties" : {
-                "field1" : { "type" : "text" }
-            }
-        }
+      "properties" : {
+      	"field1" : { "type" : "text" }
+      }
     }
 }'
 ```
@@ -119,7 +117,7 @@ En este apartado vamos a indexar algunos momento y probaremos como podemos  crea
 1. Vamos a crear un documento.
 
 ```bash
-curl -X PUT "localhost:9200/twitter/_doc/1" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/twitter/1" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -131,7 +129,7 @@ curl -X PUT "localhost:9200/twitter/_doc/1" -H 'Content-Type: application/json' 
 3. Vale pero hemos creado un documento donde hemos puesto el ID de forma explicita, ahora vamos a probar esto.
 
 ```bash
-curl -X POST "localhost:9200/twitter/_doc/" -H 'Content-Type: application/json' -d'
+curl -X POST "localhost:9200/twitter/" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -155,7 +153,7 @@ Vamos a recuperar los documentos a través de su ID por lo que no haremos consul
 1. Vamos a crear un documento.
 
 ```bash
-curl -X PUT "localhost:9200/twitter/_doc/0" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/twitter/0" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -166,13 +164,13 @@ curl -X PUT "localhost:9200/twitter/_doc/0" -H 'Content-Type: application/json' 
 2. Primero vamos a chequear que nuestro documento exista.
 
 ```bash
-curl --HEAD "localhost:9200/twitter/_doc/0"
+curl --HEAD "localhost:9200/twitter/0"
 ```
 
 3. Para recuperarlo por su ID vamos a utilizar el siguiente comando.
 
 ```bash
-curl -X GET "localhost:9200/twitter/_doc/0?pretty"
+curl -X GET "localhost:9200/twitter/0?pretty"
 ```
 
 4. Espera aquí hay más cosas de las que hemos añadido. ¿Para qué sirven todos esto datos?
@@ -185,7 +183,7 @@ Borrar documentos es sencillo en ElasticSearch y no es necesario tener que borra
 1. Esto es muy sencillo solo tenemos que lanzar este comando y borramos el documento seleccionado.
 
 ```bash
-curl -X DELETE "localhost:9200/twitter/_doc/0"
+curl -X DELETE "localhost:9200/twitter/0"
 ```
 
 2. Pero sí queremos borrar varios documento y pero no queremos borrar el indice, debemos utilizar el borrado por query.
@@ -228,13 +226,13 @@ $ curl -H "Content-Type: application/json" -XPOST "localhost:9200/bank/_doc/_bul
 3. Otra forma de saber como son los datos que tenemos en recuperando el Mapping Type.
 
 ```bash
-curl -X GET "localhost:9200/bank/_mapping/_doc"
+curl -X GET "localhost:9200/bank/_mapping/"
 ```
 
 4. Ahora vamos a hacer la query sencilla vamos a contar cuantos registros hay.
 
 ```bash
-curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
         "match_all": {}
@@ -245,7 +243,7 @@ curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json
 5. Pregunta: ¿Cuántas mujeres hay en la empresa?
 
 ```bash
-curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
     	"match": {"gender":"F"}
@@ -256,7 +254,7 @@ curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json
 6. Pregunta: ¿Cuántas mujeres viven en MA or WA?
 
 ```bash
-curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
     	"bool": {
@@ -276,7 +274,7 @@ curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json
 7. Pregunta: ¿Cuántos hombres tiene un saldo mayor  que 30000$?
 
 ```bash
-curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
     	"bool": {
@@ -301,7 +299,7 @@ curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json
 8. Pregunta: ¿Podemos borrar sólo los hombres por debajo de los 5000$?
 
 ```bash
-curl -X POST "localhost:9200/bank/_doc/_delete_by_query" -H 'Content-Type: application/json' -d'
+curl -X POST "localhost:9200/bank/_delete_by_query" -H 'Content-Type: application/json' -d'
 {
     "query": {
     	"bool": {
@@ -325,7 +323,7 @@ curl -X POST "localhost:9200/bank/_doc/_delete_by_query" -H 'Content-Type: appli
 9. Pregunta: ¿Cuántas mujeres tienes más de 30 años?
 
 ```bash
-curl -X GET "localhost:9200/bank/_doc/_count" -H 'Content-Type: application/json' -d'
+curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 {
     "query": {
     	"bool": {
