@@ -93,7 +93,7 @@ curl -X PUT "localhost:9200/test" -H 'Content-Type: application/json' -d'
 5. Este comando deberemos meterlo en nuestro script de arranque, pero necesitaré un método para comprobar si  un indice existe o no.
 
 ```bash
-curl -X HEAD "localhost:9200/twitter"
+curl --HEAD "localhost:9200/twitter"
 ```
 
 6. Si listamos los indices podemos ver todos los que ahora mismos existen en el sistema.
@@ -280,7 +280,7 @@ curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
     	"bool": {
          	"must": [{
                 "match": {
-                	"gender": "f"
+                	"gender": "m"
                 }},
                 {"range": {
                     "balance": {
@@ -333,7 +333,7 @@ curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
                 }},
                 {"range": {
                     "age": {
-                        "gte":40
+                        "gte":30
                     }
                 }}
                 ]
@@ -342,14 +342,5 @@ curl -X GET "localhost:9200/bank/_count" -H 'Content-Type: application/json' -d'
 	}    
 }'
 ```
-
-
-
-
-
-​    
-
-
-
 
 
