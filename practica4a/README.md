@@ -11,7 +11,7 @@ En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más 
 3. Ahora para limpiar la carpeta ejecutamos `mvn clean`.
 4. Ahora abrimos IntelliJ,
 5. Pulsamos en `Import project`. 
-6. Seleccionamos la carpeta `Practica3`.
+6. Seleccionamos la carpeta `Practica4a`.
 7. Ahora seleccionamos la opción `Import project from external model`.
 8. Seleccionamos `maven` y pulsamos `next`.
 9. Marcamos la casilla `Import Maven projects automatically`.
@@ -40,7 +40,7 @@ En la carpeta de la practica hay un dataset con las obras de William Shakespeare
 2. Después de que elastic search haya arrancado, crearemos el indice donde vamos a guardar los datos con el siguiente comando.
 
 ```bash
-curl -X PUT "localhost:9200/shakespeare" -H 'Content-Type: application/json' -d'                                                                                                     elk-bootcamp-esp/git/master !
+curl -X PUT "localhost:9200/shakespeare" -H 'Content-Type: application/json' -d'
 {
   "mappings": {
     "properties": {

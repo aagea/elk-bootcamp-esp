@@ -4,13 +4,13 @@ public class ShakespeareEntry {
     private final int lineID;
     private final String playName;
     private final int speechNumber;
-    private final int lineNumber;
+    private final String lineNumber;
     private final String speaker;
     private final String textEntry;
 
 
     public ShakespeareEntry(int lineID, String playName, int speechNumber,
-                            int lineNumber, String speaker, String textEntry) {
+                            String lineNumber, String speaker, String textEntry) {
         this.lineID = lineID;
         this.playName = playName;
         this.speechNumber = speechNumber;
@@ -31,7 +31,7 @@ public class ShakespeareEntry {
         return speechNumber;
     }
 
-    public int getLineNumber() {
+    public String getLineNumber() {
         return lineNumber;
     }
 
