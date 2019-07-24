@@ -9,34 +9,29 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 1. Abrimos el fichero `docker-compose.yml` con el comando vim `docker-compose.yml`.
 
 ```yaml
-version: '3'
+vversion: '3'
 services:
   es-pract6:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
     container_name: es-pract6
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     volumes:
       - es-data5:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
   heartbeat-pract6:
     user: root
-    image: docker.elastic.co/beats/heartbeat:6.4.2
+    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
     container_name: heartbeat-pract6
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
   kibana-pract6:
-    image: docker.elastic.co/kibana/kibana:6.4.2
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
     environment:
       ELASTICSEARCH_URL: http://es-pract6:9200
     ports:

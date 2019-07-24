@@ -12,19 +12,14 @@ Lo primero que vamos a hacer es lanzar el compose para ello primero vamos a anal
 version: '3'
 services:
   es-pract8:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract8
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    container_name: elasticsearch
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     volumes:
       - es-data8:/usr/share/elasticsearch/data
     ports:
@@ -34,7 +29,7 @@ services:
       test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
   filebeat-pract8:
     user: root
-    image: docker.elastic.co/beats/filebeat:6.4.2
+    image: docker.elastic.co/beats/filebeat-oss:7.2.0
     container_name: filebeat-pract5
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
@@ -42,19 +37,19 @@ services:
       - ./logs/nginx/:/var/log/nginx/
   metricbeat-pract8:
     user: root
-    image: docker.elastic.co/beats/metricbeat:6.4.2
+    image: docker.elastic.co/beats/metricbeat-oss:7.2.0
     container_name: metricbeat-pract8
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
       - /var/run/docker.sock:/var/run/docker.sock
   heartbeat-pract8:
     user: root
-    image: docker.elastic.co/beats/heartbeat:6.4.2
+    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
     container_name: heartbeat-pract8
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
   kibana-pract8:
-    image: docker.elastic.co/kibana/kibana:6.4.2
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
     environment:
       ELASTICSEARCH_URL: http://es-pract8:9200
     ports:
@@ -180,10 +175,6 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
    - **Discover.** Dónde podemos explorar los datos almacenados en ElasticSearch.
    - **Visualize.** Para poder visualizar los datos debemos definir las gráficas que vamos a embeber en los dashboards.
    - **Dashboard.** Aquí definiremos los dashboards que crearemos utilizando la visualizaciones que hayamos diseñado.
-   - **Timelion.** En esta sección podremos utilizar el nuevo método de Kibana para crear gráficas con series temporales.
-   - **APM.** Esta es una función de pago de elastic search que nos permite medir el rendimiento de aplicaciones desplegadas.
-   - **DevTools.** Es un sandbox que nos permite ejecutar consultas de ElasticSearch utilizando una interfaz muy intuitiva y sencilla.
-   - **Monitoring.** Funcionalidad de pago que permite capturar datos del hardware que estamos desplegando.
    - **Management.** En esta pestaña controlaremos la configuración de Kibana.
 3. Lo primero que hacemos es hacer click en la pestaña `management`.
 4. La primera sección que aparece se refiere a ElasticSearch. En ella podemos comprobar el estado de los indices, su tamaño y el numero de shards.
@@ -225,7 +216,7 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
 
 Para trabaja con series temporales, Kibana recomienda utilizar este tipo de gráficas con Timelion. Timelion define un nuevo lenguaje que nos permite ser más descriptivos a la hora de diseñar la visualización.
 
-1. Lo primero que tenemos que hacer es pulsar en la pestaña `Timelion`.
+1. Lo primero que tenemos que hacer es pulsar en la pestaña de visualizaciones una visualizacion de  `Timelion`.
 2. En esta pestaña nos encontramos dos paneles: el superior que indica la query que se va a ejecutar y el inferioridades con los resultados de la query.
 3. El comando `.es` hace referencia a ElasticSearch, por tanto aquí vamos a describir de donde cogemos la información de nuestra series temporales.
 4. La propia caja de texto tiene un sistema de auto-completado que te describe cada uno de los campos, vamos a introducir el siguiente texto.
