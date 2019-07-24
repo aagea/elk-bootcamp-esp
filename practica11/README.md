@@ -178,16 +178,15 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
    - **Management.** En esta pestaña controlaremos la configuración de Kibana.
 3. Lo primero que hacemos es hacer click en la pestaña `management`.
 4. La primera sección que aparece se refiere a ElasticSearch. En ella podemos comprobar el estado de los indices, su tamaño y el numero de shards.
-5. A la vez podemos activar la licencia premium de Kibana.
+5. También podemos gestionar los mapping types.
 6. En la sección de Kibana podemos ver lo siguiente:
    - **Index Patterns.** Esta sección es donde vamos a configurar los indices que agregará Kibana. Para ello utilizaremos un nombre, con comodines para poder agrupar varios indices a la vez.
    - **Saved objects.** Contiene un listado con todos los objetos que están almacenados en Kibana permite tanto importarlos como exportarlos.
    -  **Reporting.** Los reports generados por el sistema.
    - **Advanced settings.** En esta página podemos controlar todas las propiedades de la plataforma. Desde formatos de fecha, hasta personalización de la interfaz.
-7. Ahora vamos a crear un index patter para cada uno de los beats que hemos configurado.
+7. Ahora vamos a crear un index pattern para cada uno de los beats que hemos configurado.
 8. Como campo de tiempo debemos utilizar el campo `@timestamp`
 9. Ahora pulsamos en la pestaña discover, en ella podemos visualizar la información que esta almacenada en ElasticSearch.
-10. **Tarea:** explora los datos y encuentra los campos que indican si los servicios ElasticSearch están vivos.
 11. **Tarea:** explora los datos y encuentra el campo que indica el porcentaje de uso total de CPU.
 12. Ahora vamos a la sección de `Visualize`.
 13. Pulsamos el botón `+`.
@@ -216,7 +215,7 @@ Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a trav�
 
 Para trabaja con series temporales, Kibana recomienda utilizar este tipo de gráficas con Timelion. Timelion define un nuevo lenguaje que nos permite ser más descriptivos a la hora de diseñar la visualización.
 
-1. Lo primero que tenemos que hacer es pulsar en la pestaña de visualizaciones una visualizacion de  `Timelion`.
+1. Lo primero que tenemos que hacer es pulsar en la pestaña de visualizaciones e incluir este tipo de visualizacion  `Timelion`.
 2. En esta pestaña nos encontramos dos paneles: el superior que indica la query que se va a ejecutar y el inferioridades con los resultados de la query.
 3. El comando `.es` hace referencia a ElasticSearch, por tanto aquí vamos a describir de donde cogemos la información de nuestra series temporales.
 4. La propia caja de texto tiene un sistema de auto-completado que te describe cada uno de los campos, vamos a introducir el siguiente texto.

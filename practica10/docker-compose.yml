@@ -2,7 +2,7 @@ version: '3'
 services:
   es-pract9:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
-    container_name: es-pract9
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
     ulimits:
