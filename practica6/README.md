@@ -12,31 +12,27 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 version: '3'
 services:
   es-pract4:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract4
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    container_name: elasticsearch
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     volumes:
       - es-data4:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
   auditbeat-pract4:
-    image: docker.elastic.co/beats/auditbeat:6.4.2
+    user: root
+    image: docker.elastic.co/beats/auditbeat-oss:7.2.0
     container_name: auditbeat-pract4
     volumes:
       - ./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml
       - ./test:/var/test
   kibana-pract4:
-    image: docker.elastic.co/kibana/kibana:6.4.2
+    image: docker.elastic.co/kibana/kibana-oss:7.2.0
     environment:
       ELASTICSEARCH_URL: http://es-pract4:9200
     ports:
