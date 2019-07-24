@@ -68,6 +68,7 @@ final SearchResponse searchResponse = client.search(searchRequest, RequestOption
 5. Para recuperar los resultados, primero extremos la agregación `year`, después recorremos los buckets y recuperamos las claves y los valores. Para recuperar el campo `country` tenemos que introducirnos en la segunda agregación y extraer la clave del campo.
 
 ```java
+Terms years = searchResponse.getAggregations().get("year");
 List<OlympicWinner> olympicWinners = new LinkedList<>();
 for (Terms.Bucket x : years.getBuckets()) {
   String year = x.getKeyAsString();
