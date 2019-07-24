@@ -1,95 +1,90 @@
-# Practica 4: probando Auditbeat
+# Practica 5: indexando y agregando
 
-En esta práctica vamos a probar el servicio Auditbeat, en ese caso vamos a probar únicamente el servicio que chequea la integridad de los directorios.
+En esta práctica vamos a probar cómo se usa la librería de ElasticSearch con Java, para ello vamos a usar un código de ejemplo. Nuestro trabajo va a se completar el código.
 
-## Ejercicio 1. Lanzando el compose.
+## Ejercicio 1. Añadiendo el proyecto
 
-En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entender que estamos haciendo en el ejercicio.
+En este apartado vamos a añadir el proyecto a IntelliJ para que sea mucho más fácil trabajar con el código Java.
 
-1. Abrimos el fichero `docker-compose.yml` con el comando vim `docker-compose.yml`.
+1. Lo primero que vamos a hacer es chequear que el entorno funciona. Para ello ejecutamos `mvn clean install` desde la carpeta de la práctica. Deberán fallar los tests.
+2. Este comando se descargará las dependencias y compilara el proyecto, el resultado debería ser correcto.
+3. Ahora para limpiar la carpeta ejecutamos `mvn clean`.
+4. Ahora abrimos IntelliJ,
+5. Pulsamos en `Import project`. 
+6. Seleccionamos la carpeta `Practica5`.
+7. Ahora seleccionamos la opción `Import project from external model`.
+8. Seleccionamos `maven` y pulsamos `next`.
+9. Marcamos la casilla `Import Maven projects automatically`.
+10. Pulsamos `next`.
+11. Pulsamos `next`.
+12. Pulsamos `next`.
+13. Pulsamos `finish`.
+14. Ya esta ahora ya tenemos nuestro proyecto importado en IntelliJ. 
 
-```yaml
-version: '3'
-services:
-  es-pract4:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract4
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - es-data4:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-  auditbeat-pract4:
-    image: docker.elastic.co/beats/auditbeat:6.4.2
-    container_name: auditbeat-pract4
-    volumes:
-      - ./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml
-      - ./test:/var/test
-  kibana-pract4:
-    image: docker.elastic.co/kibana/kibana:6.4.2
-    environment:
-      ELASTICSEARCH_URL: http://es-pract4:9200
-    ports:
-      - 5601:5601
-volumes:
-  es-data4:
-    driver: local
+## Ejercicio 2. Indexando el CSV
+
+El primer ejercicio que vamos a hacer es rellenar el método de indexación, este método es necesario para indexar todos los registros del CSV. Una vez que el método este completo, lanzaremos la aplicación y ejecutaremos el modo `i`. En caso de que algo salga mal siempre podemos respetar el indice utilizando la aplicación el modo `r`.
+
+## Ejercicio 3. getOlympicWinnerByYear
+
+Este método debe decirlo que país obtuvo más medalla desde 1950. Para ello vamos a tener que hacer una consulta de agregación.
+
+1. Primero creamos la base de la consulta.
+
+```java
+SearchRequest searchRequest = new SearchRequest();
+SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 ```
 
-2. Como podemos ver arrancamos tres servicios: ElasticSearch, Auditbeat y Kibana.
-3. ElasticSearch se levanta de la forma habitual.
-4. Kibana se asocia al ElasticSearch ya levantado.
-5. Auditbeat tiene dos puntos de montaje `auditbeat.yml` y el directorio `test`.
-6. Vamos a abrir el fichero `auditbeat.yml`.
+2. Creamos la query que filtrará todos los resultado menores de 1950.
 
-```yaml
-auditbeat.modules:
-- module: file_integrity
-  paths:
-  - /var/test
-  exclude_files:
-  - '(?i)\.sw[nop]$'
-  - '~$'
-  - '/\.git($|/)'
-  scan_at_start: true
-  scan_rate_per_sec: 50 MiB
-  max_file_size: 100 MiB
-  hash_types: [sha1]
-  recursive: false
-output.elasticsearch:
-  hosts: ["es-pract4:9200"]
+```java
+searchSourceBuilder.query(QueryBuilders.rangeQuery(RecordController.YEAR_FIELD)
+	.from("1950"))
+  .sort(RecordController.YEAR_FIELD, SortOrder.DESC);
 ```
 
-7. Este fichero contiene la configuración de auditbeat.
-8. Esta configurado para monitorizar el directorio `/var/test`.
-9. Este es el directorio que hemos montado en el `docker-compose.yml`
-10. Modificamos los permisos del fichero `auditbeat.yml`
+3. Creamos la consulta de agregación. Esta consulta agrega primero por año y después por país, ordenando estos últimos por el número de veces que aparece en el indice.
 
-```bash
-sudo chown root auditbeat.yml
+```java
+searchSourceBuilder.aggregation(AggregationBuilders.terms("year")
+	.field(RecordController.YEAR_FIELD)
+  .subAggregation(
+    AggregationBuilders
+    .terms("country")
+    .field(COUNTRY_FIELD)
+    .order(BucketOrder.aggregation("_count", false))
+	)
+);
 ```
 
-11. Vamos a arrancar la composición con el comando `docker-compose up`.
+4. Ya esta todo listo para que podamos ejecutar la consulta.
 
-## Ejercicio 2. Explorando datos con Kibana.
+```java
+searchRequest.source(searchSourceBuilder);
+final SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+```
 
-Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a través de Kibana.
+5. Para recuperar los resultados, primero extremos la agregación `year`, después recorremos los buckets y recuperamos las claves y los valores. Para recuperar el campo `country` tenemos que introducirnos en la segunda agregación y extraer la clave del campo.
 
-1. En un navegador abrimos la URL http://localhost:5601
-2. En el navegador aparecerá el dashboard de Kibana, hacemos click en discovery.
-3. Nos aparecerá el menú de crear un índex pattern.
-4. Ponemos el texto `audit*` y damos a `Next step`.
-5. En el menú seleccionamos `@timestamp`como unidad de tiempo y pulsamos `Create index pattern`.
-6. Volvemos a pulsa en el menú discovery.
-7. Ahora podemos explorar los datos generados por Auditbeat.
-8. **Tarea:** Modifica el fichero, crea, nuevos y veras como se generán nuevos eventos.
+```java
+List<OlympicWinner> olympicWinners = new LinkedList<>();
+for (Terms.Bucket x : years.getBuckets()) {
+  String year = x.getKeyAsString();
+  Terms countries = x.getAggregations().get("country");
+  String country = countries.getBuckets().get(0).getKeyAsString();
+  long medals = countries.getBuckets().get(0).getDocCount();
+
+  olympicWinners.add(new OlympicWinner(year, country, (int) medals));
+}
+return olympicWinners;
+```
+
+
+
+## Ejercicio 4. Completando el resto de los métodos
+
+El resto del ejercicio consistirá en completar el resto de los métodos de la clase, para ello deberás seguir el mismo esquema que en los ejercicios anteriores.
+
+ 
+

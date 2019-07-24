@@ -27,7 +27,7 @@ public class EventControllerTest {
 
         Event ev1 = new Event("A", "1", initTime.plus(1, ChronoUnit.MINUTES), initTime.plus(2, ChronoUnit.MINUTES));
         Event ev2 = new Event("B", "2", initTime.plus(3, ChronoUnit.MINUTES), initTime.plus(4, ChronoUnit.MINUTES));
-        Event ev3 = new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(5, ChronoUnit.MINUTES));
+        Event ev3 = new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(6, ChronoUnit.MINUTES));
         Event ev4 = new Event("B", "1", initTime.plus(7, ChronoUnit.MINUTES), initTime.plus(8, ChronoUnit.MINUTES));
         Event ev5 = new Event("A", "2", initTime.plus(9, ChronoUnit.MINUTES), initTime.plus(10, ChronoUnit.MINUTES));
         Event ev6 = new Event("B", "3", initTime.plus(11, ChronoUnit.MINUTES), initTime.plus(12, ChronoUnit.MINUTES));
@@ -172,7 +172,7 @@ public class EventControllerTest {
         Assert.assertEquals("Size must be 2", 2, result.get().size());
 
         Assert.assertEquals("First event must be equals",
-                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(5, ChronoUnit.MINUTES)),
+                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(6, ChronoUnit.MINUTES)),
                 result.get().get(0)
         );
         Assert.assertEquals("Last event must be equals",
@@ -213,7 +213,7 @@ public class EventControllerTest {
         Assert.assertEquals("Size must be 2", 2, result.get().size());
 
         Assert.assertEquals("First event must be equals",
-                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(5, ChronoUnit.MINUTES)),
+                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(6, ChronoUnit.MINUTES)),
                 result.get().get(0)
         );
         Assert.assertEquals("Last event must be equals",
@@ -285,7 +285,7 @@ public class EventControllerTest {
         Assert.assertEquals("Size must be 2", 2, result.get().size());
 
         Assert.assertEquals("First event must be equals",
-                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(5, ChronoUnit.MINUTES)),
+                new Event("A", "3", initTime.plus(5, ChronoUnit.MINUTES), initTime.plus(6, ChronoUnit.MINUTES)),
                 result.get().get(0)
         );
         Assert.assertEquals("Last event must be equals",
@@ -297,7 +297,7 @@ public class EventControllerTest {
     @Test
     public void firstWithDistinctAndBeforeTest() {
         final Optional<List<Event>> result = controller.firstDistinct("A", Arrays.asList("1", "2"), 2,
-                initTime.plus(5, ChronoUnit.MINUTES));
+                initTime.plus(6, ChronoUnit.MINUTES));
         Assert.assertTrue("Result has been defined", result.isPresent());
         Assert.assertEquals("Size must be 2", 2, result.get().size());
 

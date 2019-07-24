@@ -1,7 +1,0 @@
-filebeat.inputs:
-- type: log
-  paths:
-    - /var/log/pratc9/*.log 
-output.logstash:
-  hosts: ["logstash-pract9:5044"]
-

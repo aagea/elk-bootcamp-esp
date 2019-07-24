@@ -1,6 +1,8 @@
-# Practica 8: probando Kibana
+# Practica 9: probando Logstash
 
-Esta práctica se compone de dos partes, un repaso de metrics, donde vamos a instalar Filebeats, Metricbeats, Hearbeats, ElasticSearch y Kibana. Ademas lanzaremos un servicio NGINX que servirá contenido estático y nos servirá para capturar sus logs. La segunda parte del ejercicio consistirá en usar Kibana para crear un dashboard que nos muestre el estado de nuestra máquina.
+Aunque LogStash al principio era una parte muy importante del stack ELK, poco a poco ha ido perdiendo relevancia en favor de los Beats. Actualmente LogStash se utilizada para gestionar transformaciones un poco más complejas, filtrados y publicación de información a multiples almacenamientos.
+
+En esta practica vamos a entender como se compone un pipeline que extraiga información de las trazas de log.
 
 ## Ejercicio 1. Lanzando el compose.
 
@@ -11,9 +13,9 @@ Lo primero que vamos a hacer es lanzar el compose para ello primero vamos a anal
 ```yaml
 version: '3'
 services:
-  es-pract8:
+  es-pract9:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract8
+    container_name: es-pract9
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -26,51 +28,30 @@ services:
         soft: 65536
         hard: 65536
     volumes:
-      - es-data8:/usr/share/elasticsearch/data
+      - es-data9:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    #Healthcheck to confirm availability of ES. Other containers wait on this.
-    healthcheck:
-      test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
-  filebeat-pract8:
+  logstash-pract9:
+    user: root
+    image: docker.elastic.co/logstash/logstash-oss:6.4.3
+    container_name: logstash-pract9
+    volumes:
+      - ./pipeline:/usr/share/logstash/pipeline/
+  filebeat-pract9:
     user: root
     image: docker.elastic.co/beats/filebeat:6.4.2
-    container_name: filebeat-pract5
+    container_name: filebeat-pract9
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
-      - ./logs/nginx/:/var/log/nginx/
-  metricbeat-pract8:
-    user: root
-    image: docker.elastic.co/beats/metricbeat:6.4.2
-    container_name: metricbeat-pract8
-    volumes:
-      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-  heartbeat-pract8:
-    user: root
-    image: docker.elastic.co/beats/heartbeat:6.4.2
-    container_name: heartbeat-pract8
-    volumes:
-      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
-  kibana-pract8:
+      - ./data/:/var/log/pratc9/
+  kibana-pract9:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract8:9200
+     ELASTICSEARCH_URL: http://es-pract9:9200
     ports:
       - 5601:5601
-  nginx-pract8:
-    container_name: nginx-pract8
-    hostname: nginx
-    build: ./nginx
-    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
-    ports: ['8080:80']
-    command: nginx -g 'daemon off;'
-    volumes:
-      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
-      - ./logs/nginx/:/var/log/nginx/
 volumes:
-  es-data8:
+  es-data9:
     driver: local
 ```
 
@@ -78,185 +59,291 @@ volumes:
    - **ElasticSearch,** en el vamos a almacenar todas las métricas de los servicios.
    - **Kibana,** lo utilizamos para visualizar y explorar la información almacenada en ElasticSearch.
    - **Filebeats,** extrae todos los logs generados por los contenedores y por el NGINX.
-   - **Metricbeats,** recoge la información de uso de CPU y de IOPS de la máquina host.
-   - **Heartbeats,** comprueba el status de ElasticSearch y del NGINX. 
+   - **LogStash,** va a recibir todos los mensajes que se manden desde Filebeat.
 3. ElasticSearch se levanta de la forma habitual.
 4. Kibana se asocia al ElasticSearch ya levantado.
-5. Filebeats tiene dos puntos de montaje: para leer los logs de los contenedores y para leer los accesos a NGINX.
+5. Filebeats tiene un punto de montaje para leer un fichero precargado con trazas de logs.
 6. Vamos a abrir el fichero `filebeat.yml`.
 
 ```yaml
-filebeat.modules:
-- module: nginx
-  access:
-    var.paths: ["/var/log/nginx/access.log*"]
-  error:
-    var.paths: ["/var/log/nginx/error.log*"]
 filebeat.inputs:
-- type: docker
-  enabled: true
-  containers:
-    path: "/var/lib/docker/containers"
-    ids:
-    - '*'
-output.elasticsearch:
-  hosts: ["es-pract8:9200"]
+- type: log
+  paths:
+    - /var/log/pratc9/*.log 
+output.logstash:
+  hosts: ["logstash-pract9:5044"]
 ```
 
 7. Este fichero contiene la configuración de filebeat.
-8. Hemos lanzado un modulo NGINX que captura los logs y los transforma para que los podamos buscar en ElasticSearch.
+8. Lo que hacemos es leer todos los ficheros de logs que se contengan en esta carpeta y los mandamos a LogStash.
 9. Modificamos los permisos del fichero `filebeat.yml` 
 
 ```bash
 sudo chown root filebeat.yml
 ```
 
-10. Metricbeats tiene un punto de montaje a `/var/run/docker.sock` de donde extraerá las métricas de los servicios de docker.
-11. Vamos a abrir el fichero `metricbeats.yml`.
+10. Si nos fijamos en e LogStash tenemos una punto de montaje que configura la carpeta donde vamos a guardar los pipelines.
+11. Un pipeline es una configuración de entrada y salida de LogStash. 
+12. A continuation ponemos un esqueleto de lo que es un pipeline.
 
-```yaml
-metricbeat.modules:
-- module: docker
-  metricsets:
-    - "cpu"
-    - "diskio"
-  hosts: ["unix:///var/run/docker.sock"]
-  period: 10s
-  enabled: true
-output.elasticsearch:
-  hosts: ["es-pract8:9200"]
+```
+# En esta seccion describimos las entradas del pipeline.
+input {
+}
+# El filtrado es algo opcional, es donde se tranforman los mensajes.
+# filter {
+#
+# }
+# Aqui se indican donde vamos a escribir los resultados.
+output {
+}
 ```
 
-12. Metrics solo capturará las métricas relacionadas con la CPU y la operaciones de entrada y salida.
-13. Modificamos los permisos del fichero `metricsbeat.yml` 
+13. Vamos a abrir el fichero `pipeline.conf` con el comando `vim pipeline.conf`.
+
+```
+input {
+	beats {
+        port => "5044"
+        host => "0.0.0.0"
+    }
+}
+# El filtrado es algo opcional, es donde se tranforman los mensajes.
+# filter {
+#
+# }
+
+output {
+    stdout { codec => rubydebug }
+}
+```
+
+14. La entrada ponemos el plugin de beats.
+15. La salida es la salida estándar por lo que podemos ver en pantalla todos los mensajes de logs.
+16. Ejecutamos primero logstash `docker-compose up logstash-pract9`
+17. Cuando logstash este arrancado, debería salir por pantalla algo así.
+
+```verilog
+logstash-pract9    | Sending Logstash logs to /usr/share/logstash/logs which is now configured via log4j2.properties
+logstash-pract9    | [2018-11-18T22:51:51,166][INFO ][logstash.setting.writabledirectory] Creating directory {:setting=>"path.queue", :path=>"/usr/share/logstash/data/queue"}
+logstash-pract9    | [2018-11-18T22:51:51,185][INFO ][logstash.setting.writabledirectory] Creating directory {:setting=>"path.dead_letter_queue", :path=>"/usr/share/logstash/data/dead_letter_queue"}
+logstash-pract9    | [2018-11-18T22:51:52,299][INFO ][logstash.agent           ] No persistent UUID file found. Generating new UUID {:uuid=>"011df0db-a8c5-4612-b072-b6bb11bc2526", :path=>"/usr/share/logstash/data/uuid"}
+logstash-pract9    | [2018-11-18T22:51:53,689][INFO ][logstash.runner          ] Starting Logstash {"logstash.version"=>"6.4.3"}
+logstash-pract9    | [2018-11-18T22:51:58,072][INFO ][logstash.pipeline        ] Starting pipeline {:pipeline_id=>"main", "pipeline.workers"=>2, "pipeline.batch.size"=>125, "pipeline.batch.delay"=>50}
+logstash-pract9    | [2018-11-18T22:51:59,140][INFO ][logstash.inputs.beats    ] Beats inputs: Starting input listener {:address=>"0.0.0.0:5044"}
+logstash-pract9    | [2018-11-18T22:51:59,186][INFO ][logstash.pipeline        ] Pipeline started successfully {:pipeline_id=>"main", :thread=>"#<Thread:0x7faa3982 run>"}
+logstash-pract9    | [2018-11-18T22:51:59,449][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
+logstash-pract9    | [2018-11-18T22:51:59,674][INFO ][org.logstash.beats.Server] Starting server on port: 5044
+logstash-pract9    | [2018-11-18T22:52:00,295][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}
+```
+
+18. **Desde otra consola.** Ejecutamos el siguiente comando en la misma carpeta de la práctica.
 
 ```bash
-sudo chown root metricsbeat.yml
+docker-compose up filebeat-pract9
 ```
 
-14. Heartbeats no tiene ningún punto de montaje asignado.
-15. Vamos a abrir el fichero `heartbeat.yml`.
+19. Los logs del fichero se mostrarán por pantalla.
 
-```yaml
-heartbeat.monitors:
-- type: http
-  schedule: '@every 5s'
-  urls: ["http://es-pract8:9200"]
-  check.request:
-    method: "GET"
-  check.response:
-    status: 200
-- type: http
-  enabled: true
-  schedule: '@every 5s'
-  urls: ["http://nginx-pract8/server-status"]
-  ipv4: true
-  ipv6: true
-  mode: any
-  timeout: 5s
-  check.request:
-    method: "GET"
-  check.response:
-    status: 200
-output.elasticsearch:
-  hosts: ["es-pract8:9200"]
+## Ejercicio2. Analizando los mensajes de Log.
+
+Podemos comprobar que file beat nos da muchos metadatos de la traza de log, sin embargo no descompone el mensaje de log.
+
+```
+{
+    "@timestamp" => 2017-11-09T01:44:20.071Z,
+        "offset" => 325,
+      "@version" => "1",
+          "beat" => {
+            "name" => "My-MacBook-Pro.local",
+        "hostname" => "My-MacBook-Pro.local",
+         "version" => "6.0.0"
+    },
+          "host" => "My-MacBook-Pro.local",
+    "prospector" => {
+        "type" => "log"
+    },
+        "source" => "/path/to/file/logstash-tutorial.log",
+       "message" => "83.149.9.216 - - [04/Jan/2015:05:13:42 +0000] \"GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1\" 200 203023 \"http://semicomplete.com/presentations/logstash-monitorama-2013/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\"",
+          "tags" => [
+        [0] "beats_input_codec_plain_applied"
+    ]
+}
+...
 ```
 
-16. Cómo podemos ver Heartbeats hace dos comprobaciones cada 5 segundos una para chequear ElasticSearch y otra para chequear NGINX.
-17. Modificamos los permisos del fichero `heartbeat.yml` 
+Para descomponer el mensaje vamos a utilizar uno de los plugins más útiles de LogStash, el Grok filter.
+
+1. Primero paramos todos los docker con el comando `docker-compose down`
+2. Si analizamos el mensaje de una de las trazas, veremos que es muy fácil de reconocer muchos campos.
+
+```verilog
+83.149.9.216 - - [04/Jan/2015:05:13:42 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"
+```
+
+3. El Grok filter justamente se encarga de extraer esa información, para ello sólo tenemos que modificar el pipeline e introducir este texto en la sección de filter.
+
+```
+filter {
+    grok {
+        match => { "message" => "%{COMBINEDAPACHELOG}"}
+    }
+}
+```
+
+4. Ejecutamos primero logstash `docker-compose up logstash-pract9`
+5. Esperamos a que el logstash este arrancado.
+6. **Desde otra consola.** Ejecutamos el siguiente comando en la misma carpeta de la práctica.
 
 ```bash
-sudo chown root heartbeat.yml
+docker-compose up filebeat-pract9
 ```
 
-18. Lanzamos el compose usando el comando `docker-compose up`.
-
-## Ejercicio 2. Primeros pasos con Kibana.
-
-Vamos a ver cómo podemos explorar los datos capturado por ElasticSearch a través de Kibana.
-
-1. En un navegador abrimos la URL http://localhost:5601
-2. En esta pagina aparece la aplicación de Kibana que contiene un sidebar con ocho pestañas:
-   - **Discover.** Dónde podemos explorar los datos almacenados en ElasticSearch.
-   - **Visualize.** Para poder visualizar los datos debemos definir las gráficas que vamos a embeber en los dashboards.
-   - **Dashboard.** Aquí definiremos los dashboards que crearemos utilizando la visualizaciones que hayamos diseñado.
-   - **Timelion.** En esta sección podremos utilizar el nuevo método de Kibana para crear gráficas con series temporales.
-   - **APM.** Esta es una función de pago de elastic search que nos permite medir el rendimiento de aplicaciones desplegadas.
-   - **DevTools.** Es un sandbox que nos permite ejecutar consultas de ElasticSearch utilizando una interfaz muy intuitiva y sencilla.
-   - **Monitoring.** Funcionalidad de pago que permite capturar datos del hardware que estamos desplegando.
-   - **Management.** En esta pestaña controlaremos la configuración de Kibana.
-3. Lo primero que hacemos es hacer click en la pestaña `management`.
-4. La primera sección que aparece se refiere a ElasticSearch. En ella podemos comprobar el estado de los indices, su tamaño y el numero de shards.
-5. A la vez podemos activar la licencia premium de Kibana.
-6. En la sección de Kibana podemos ver lo siguiente:
-   - **Index Patterns.** Esta sección es donde vamos a configurar los indices que agregará Kibana. Para ello utilizaremos un nombre, con comodines para poder agrupar varios indices a la vez.
-   - **Saved objects.** Contiene un listado con todos los objetos que están almacenados en Kibana permite tanto importarlos como exportarlos.
-   -  **Reporting.** Los reports generados por el sistema.
-   - **Advanced settings.** En esta página podemos controlar todas las propiedades de la plataforma. Desde formatos de fecha, hasta personalización de la interfaz.
-7. Ahora vamos a crear un index patter para cada uno de los beats que hemos configurado.
-8. Como campo de tiempo debemos utilizar el campo `@timestamp`
-9. Ahora pulsamos en la pestaña discover, en ella podemos visualizar la información que esta almacenada en ElasticSearch.
-10. **Tarea:** explora los datos y encuentra los campos que indican si los servicios ElasticSearch están vivos.
-11. **Tarea:** explora los datos y encuentra el campo que indica el porcentaje de uso total de CPU.
-12. Ahora vamos a la sección de `Visualize`.
-13. Pulsamos el botón `+`.
-14. Seleccionamos la gráfica `Vertical Bar`.
-15. Seleccionamos el pattern que captura los datos de heartbeat.
-16. Primero vamos a configura el eje x.
-17. Para ello vamos a pulsar al botón `X-Axis`.
-18. Seleccionamos la agregación `Date Histogram`
-19. Ahora añadimos un nuevo criterio de agrupación, pulsando `Add sub-buckets` y `Split charts`.
-20. Seleccionamos que queremos separarlos por columnas.
-21. Seleccionamos la agregación `Terms`.
-22. Y el field `monitor-id`.
-23. Ahora añadimos un nuevo criterio de agrupación, pulsando `Add sub-buckets` y `Split series`.
-24. Seleccionamos la agregación `Terms`.
-25. Y el field `monitor-status`.
-26. El eje-y no hace falta que lo toquemos.
-27. Ahora tenemos un gráfico que nos muestra un el estado de los dos componentes.
-28. Buscamos en la barra superior el botón `Save` y guardamos la visualización con el nombre `Health Check`.
-29. Hacemos click en la pestaña `Dashboard`.
-30. Pulsamos en el botón `Create new dashboard`. 
-31. Pulsamos en el botón `Add` y seleccionamos la visualización `Health Check`.
-32. Pulsamos en el botón `Save` y ya tenemos nuestro primer dashboard.
-33. **Tarea:** Creemos un grafico usando los datos de CPU, y pon esta visualización en el mismo dashboard.
-
-## Ejercicio 3. Creando un gráfico usando Timelion.
-
-Para trabaja con series temporales, Kibana recomienda utilizar este tipo de gráficas con Timelion. Timelion define un nuevo lenguaje que nos permite ser más descriptivos a la hora de diseñar la visualización.
-
-1. Lo primero que tenemos que hacer es pulsar en la pestaña `Timelion`.
-2. En esta pestaña nos encontramos dos paneles: el superior que indica la query que se va a ejecutar y el inferioridades con los resultados de la query.
-3. El comando `.es` hace referencia a ElasticSearch, por tanto aquí vamos a describir de donde cogemos la información de nuestra series temporales.
-4. La propia caja de texto tiene un sistema de auto-completado que te describe cada uno de los campos, vamos a introducir el siguiente texto.
-
-```timelion
-.es(index=metric*,metric=avg:docker.cpu.total.pct,timefield=@timestamp)
-```
-
-5. Esto añadirá una serie temporal a la gráfica.
-6. Si queremos añadir otra serie temporal a la misma gráfica sólo hay que incluir otra descripción separada por una coma.
-7. **Tarea:** Añadir en la misma gráfica el valor mínimo de la cpu total.
-8. Tambien se puede modificar el estilo de las gráficas.
-
-```timelion
-.es(index=metric*,metric=avg:docker.cpu.total.pct,timefield=@timestamp).color(red)
-```
-
-9. Aunque la verdadera potencia se obtiene cuando se quiere comparar dos series temporales a la vez.
+7. Ahora del mensaje se han extraído más campos que nos van a ser muy fáciles de analizar.
 
 ```
-.es(index=metric*,metric=avg:docker.cpu.total.pct,timefield=@timestamp).color(red), .es(index=metric*,metric=avg:docker.cpu.total.pct,timefield=@timestamp).color(red).mvavg(window=5m)
+{
+        "request" => "/presentations/logstash-monitorama-2013/images/kibana-search.png",
+          "agent" => "\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\"",
+         "offset" => 325,
+           "auth" => "-",
+          "ident" => "-",
+           "verb" => "GET",
+     "prospector" => {
+        "type" => "log"
+    },
+         "source" => "/path/to/file/logstash-tutorial.log",
+        "message" => "83.149.9.216 - - [04/Jan/2015:05:13:42 +0000] \"GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1\" 200 203023 \"http://semicomplete.com/presentations/logstash-monitorama-2013/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\"",
+           "tags" => [
+        [0] "beats_input_codec_plain_applied"
+    ],
+       "referrer" => "\"http://semicomplete.com/presentations/logstash-monitorama-2013/\"",
+     "@timestamp" => 2017-11-09T02:51:12.416Z,
+       "response" => "200",
+          "bytes" => "203023",
+       "clientip" => "83.149.9.216",
+       "@version" => "1",
+           "beat" => {
+            "name" => "My-MacBook-Pro.local",
+        "hostname" => "My-MacBook-Pro.local",
+         "version" => "6.0.0"
+    },
+           "host" => "My-MacBook-Pro.local",
+    "httpversion" => "1.1",
+      "timestamp" => "04/Jan/2015:05:13:42 +0000"
+}
 ```
 
-10. La gráfica se puede salvar para ser exportada o para ser usada en el dashboard de Kibana.
-11. **Tarea:** Incluye esta gráfica en el dashboard de Kibana que hemos creado en el ejercicio anterior.
+## Ejercicio 3. Añadiendo la Geo localización.
 
-## Ejercicio 4. Montando un dashboard complejo.
+Ahora que hemos extraído la ip podemos utilizar el sistema Geoip para extraer la geo localización de las trazas, y poder conocer de dónde viene el trafico que estamos capturando.
 
-En este ejercicio te vamos a proponer un reto que será montar un dashboard con varios datos que están siendo almacenado en ElasticSearch.
+1. Primero paramos todos los docker con el comando `docker-compose down`
+2. Vamos a añadir un nuevo filter en el pipeline.
 
-![Dashboard](https://i.imgur.com/0uI7l1cl.png)
+```
+    geoip {
+        source => "clientip"
+    }
+```
+
+3. Este filter extrae del campo clientip, que es donde Grok pone la IP del cliente de la request, la posición.
+4. El fichero final debería tener este aspecto.
+
+```
+input {
+    beats {
+        port => "5044"
+    }
+}
+ filter {
+    grok {
+        match => { "message" => "%{COMBINEDAPACHELOG}"}
+    }
+    geoip {
+        source => "clientip"
+    }
+}
+output {
+    stdout { codec => rubydebug }
+}
+```
+
+5. Ejecutamos primero logstash `docker-compose up logstash-pract9`
+6. Esperamos a que el logstash este arrancado.
+7. **Desde otra consola.** Ejecutamos el siguiente comando en la misma carpeta de la práctica.
+
+```bash
+docker-compose up filebeat-pract9
+```
+
+8. Ahora los mensajes debería incluir detalles de la localización del cliente.
+
+```
+{
+        "request" => "/presentations/logstash-monitorama-2013/images/kibana-search.png",
+          "agent" => "\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\"",
+          "geoip" => {
+              "timezone" => "Europe/Moscow",
+                    "ip" => "83.149.9.216",
+              "latitude" => 55.7485,
+        "continent_code" => "EU",
+             "city_name" => "Moscow",
+          "country_name" => "Russia",
+         "country_code2" => "RU",
+         "country_code3" => "RU",
+           "region_name" => "Moscow",
+              "location" => {
+            "lon" => 37.6184,
+            "lat" => 55.7485
+        },
+           "postal_code" => "101194",
+           "region_code" => "MOW",
+             "longitude" => 37.6184
+    },
+    ...
+```
+
+## Ejercicio 4. Indexando en ElasticSearch y visualizando en Kibana.
+
+El principal objetivo de LogStash es indexar la información en ElasticSearch para ser visualizada en Kibana. Por lo tanto, eso es lo que vamos a hacer y no podría ser más sencillo.
+
+1. Primero paramos todos los docker con el comando `docker-compose down`
+2. Ahora modificamos el campo output del fichero pipelines.
+
+```
+output {
+    elasticsearch {
+        hosts => [ "es-pract9:9200" ]
+    }
+}
+```
+
+3. El fichero debería tener más o menos esta pinta.
+
+```
+input {
+    beats {
+        port => "5044"
+    }
+}
+ filter {
+    grok {
+        match => { "message" => "%{COMBINEDAPACHELOG}"}
+    }
+    geoip {
+        source => "clientip"
+    }
+}
+output {
+    elasticsearch {
+        hosts => [ "es-pract9:9200" ]
+    }
+}
+```
+
+4. Ahora ejecutamos el comando `docker-compose up`
+5. **Tarea:** crear una visualización que aproveche los datos de geolocalizaciones.
 
 
 

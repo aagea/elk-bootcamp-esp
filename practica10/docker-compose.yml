@@ -1,8 +1,8 @@
 version: '3'
 services:
-  es-pract8:
+  es-pract9:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
-    container_name: es-pract8
+    container_name: es-pract9
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -15,51 +15,30 @@ services:
         soft: 65536
         hard: 65536
     volumes:
-      - es-data8:/usr/share/elasticsearch/data
+      - es-data9:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    #Healthcheck to confirm availability of ES. Other containers wait on this.
-    healthcheck:
-      test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
-  filebeat-pract8:
+  logstash-pract9:
+    user: root
+    image: docker.elastic.co/logstash/logstash-oss:6.4.3
+    container_name: logstash-pract9
+    volumes:
+      - ./pipeline:/usr/share/logstash/pipeline/
+  filebeat-pract9:
     user: root
     image: docker.elastic.co/beats/filebeat:6.4.2
-    container_name: filebeat-pract5
+    container_name: filebeat-pract9
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/snap/docker/common/var-lib-docker/containers:/var/lib/docker/containers
-      - ./logs/nginx/:/var/log/nginx/
-  metricbeat-pract8:
-    user: root
-    image: docker.elastic.co/beats/metricbeat:6.4.2
-    container_name: metricbeat-pract8
-    volumes:
-      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-  heartbeat-pract8:
-    user: root
-    image: docker.elastic.co/beats/heartbeat:6.4.2
-    container_name: heartbeat-pract8
-    volumes:
-      - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
-  kibana-pract8:
+      - ./data/:/var/log/pratc9/
+  kibana-pract9:
     image: docker.elastic.co/kibana/kibana:6.4.2
     environment:
-      ELASTICSEARCH_URL: http://es-pract8:9200
+     ELASTICSEARCH_URL: http://es-pract9:9200
     ports:
       - 5601:5601
-  nginx-pract8:
-    container_name: nginx-pract8
-    hostname: nginx
-    build: ./nginx
-    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
-    ports: ['8080:80']
-    command: nginx -g 'daemon off;'
-    volumes:
-      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
-      - ./logs/nginx/:/var/log/nginx/
 volumes:
-  es-data8:
+  es-data9:
     driver: local
 
 
