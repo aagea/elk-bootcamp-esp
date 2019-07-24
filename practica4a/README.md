@@ -44,8 +44,6 @@ curl -X PUT "localhost:9200/shakespeare" -H 'Content-Type: application/json' -d'
 {
   "mappings": {
     "properties": {
-    "speaker": {"type": "keyword"},
-    "play_name": {"type": "keyword"},
     "line_id": {"type": "integer"},
     "speech_number": {"type": "integer"}
     }
