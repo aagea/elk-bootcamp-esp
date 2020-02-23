@@ -1,4 +1,4 @@
-# Practica 9: probando Logstash
+# Practica 10: probando Logstash
 
 Aunque LogStash al principio era una parte muy importante del stack ELK, poco a poco ha ido perdiendo relevancia en favor de los Beats. Actualmente LogStash se utilizada para gestionar transformaciones un poco más complejas, filtrados y publicación de información a multiples almacenamientos.
 

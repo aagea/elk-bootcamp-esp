@@ -1,4 +1,4 @@
-# Practica 6: probando Heartbeat
+# Practica 8: probando Heartbeat
 
 En esta práctica vamos a probar el servicio Heart, para ello vamos a monitorizar el estado de ElasticSearch.
 

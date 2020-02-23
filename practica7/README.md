@@ -1,4 +1,4 @@
-# Practica 5: probando Filebeat
+# Practica 7: probando Filebeat
 
 En esta práctica vamos a probar el servicio Filebeat, para ello vamos a probar a capturar todo los logs que genera docker.
 

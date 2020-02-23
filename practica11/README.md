@@ -1,4 +1,4 @@
-# Practica 8: probando Kibana
+# Practica 11: probando Kibana
 
 Esta práctica se compone de dos partes, un repaso de metrics, donde vamos a instalar Filebeats, Metricbeats, Hearbeats, ElasticSearch y Kibana. Ademas lanzaremos un servicio NGINX que servirá contenido estático y nos servirá para capturar sus logs. La segunda parte del ejercicio consistirá en usar Kibana para crear un dashboard que nos muestre el estado de nuestra máquina.
 

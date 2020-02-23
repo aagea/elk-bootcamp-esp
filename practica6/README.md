@@ -1,4 +1,4 @@
-# Practica 4: probando Auditbeat
+# Practica 6: probando Auditbeat
 
 En esta práctica vamos a probar el servicio Auditbeat, en ese caso vamos a probar únicamente el servicio que chequea la integridad de los directorios.
 
