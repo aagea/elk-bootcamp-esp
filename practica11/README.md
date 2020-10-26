@@ -12,7 +12,7 @@ Lo primero que vamos a hacer es lanzar el compose para ello primero vamos a anal
 version: '3'
 services:
   es-pract8:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -29,7 +29,7 @@ services:
       test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
   filebeat-pract8:
     user: root
-    image: docker.elastic.co/beats/filebeat-oss:7.2.0
+    image: docker.elastic.co/beats/filebeat-oss:7.9.3
     container_name: filebeat-pract5
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
@@ -37,19 +37,19 @@ services:
       - ./logs/nginx/:/var/log/nginx/
   metricbeat-pract8:
     user: root
-    image: docker.elastic.co/beats/metricbeat-oss:7.2.0
+    image: docker.elastic.co/beats/metricbeat-oss:7.9.3
     container_name: metricbeat-pract8
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
       - /var/run/docker.sock:/var/run/docker.sock
   heartbeat-pract8:
     user: root
-    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
+    image: docker.elastic.co/beats/heartbeat-oss:7.9.3
     container_name: heartbeat-pract8
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
   kibana-pract8:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       ELASTICSEARCH_URL: http://es-pract8:9200
     ports:

@@ -12,7 +12,7 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 version: '3'
 services:
   es-pract7:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -26,13 +26,13 @@ services:
       - 9200:9200
   metricbeat-pract7:
     user: root
-    image: docker.elastic.co/beats/metricbeat-oss:7.2.0
+    image: docker.elastic.co/beats/metricbeat-oss:7.9.3
     container_name: metricbeat-pract7
     volumes:
       - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
       - /var/run/docker.sock:/var/run/docker.sock
   kibana-pract7:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       ELASTICSEARCH_URL: http://es-pract7:9200
     ports:
