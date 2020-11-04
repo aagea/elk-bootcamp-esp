@@ -211,7 +211,7 @@ $ cd ejercicio2
 version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -297,12 +297,12 @@ services:
      - "8080:8080"
   heartbeat-pract1:
     user: root
-    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
+    image: docker.elastic.co/beats/heartbeat-oss:7.9.3
     container_name: heartbeat-pract1
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
   es-pract1:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -315,7 +315,7 @@ services:
     ports:
       - 9200:9200
   kibana-pract1:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       ELASTICSEARCH_URL: http://es-pract1:9200
     ports:

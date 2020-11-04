@@ -1,7 +1,7 @@
 version: '3'
 services:
   es-pract9:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -15,19 +15,19 @@ services:
       - 9200:9200
   logstash-pract9:
     user: root
-    image: docker.elastic.co/logstash/logstash-oss:7.2.0
+    image: docker.elastic.co/logstash/logstash-oss:7.9.3
     container_name: logstash-pract9
     volumes:
       - ./pipeline:/usr/share/logstash/pipeline/
   filebeat-pract9:
     user: root
-    image: docker.elastic.co/beats/filebeat-oss:7.2.0
+    image: docker.elastic.co/beats/filebeat-oss:7.9.3
     container_name: filebeat-pract9
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./data/:/var/log/pratc9/
   kibana-pract9:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
      ELASTICSEARCH_URL: http://es-pract9:9200
     ports:

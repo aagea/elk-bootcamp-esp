@@ -12,7 +12,7 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 version: '3'
 services:
   es-pract4:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -26,13 +26,13 @@ services:
       - 9200:9200
   auditbeat-pract4:
     user: root
-    image: docker.elastic.co/beats/auditbeat-oss:7.2.0
+    image: docker.elastic.co/beats/auditbeat-oss:7.9.3
     container_name: auditbeat-pract4
     volumes:
       - ./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml
       - ./test:/var/test
   kibana-pract4:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       ELASTICSEARCH_URL: http://es-pract4:9200
     ports:

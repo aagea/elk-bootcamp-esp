@@ -12,7 +12,7 @@ En este ejercicio vamos a explorar el compose y lo vamos a ejecutar para entende
 vversion: '3'
 services:
   es-pract6:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     container_name: es-pract6
     environment:
       - discovery.type=single-node
@@ -26,12 +26,12 @@ services:
       - 9200:9200
   heartbeat-pract6:
     user: root
-    image: docker.elastic.co/beats/heartbeat-oss:7.2.0
+    image: docker.elastic.co/beats/heartbeat-oss:7.9.3
     container_name: heartbeat-pract6
     volumes:
       - ./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
   kibana-pract6:
-    image: docker.elastic.co/kibana/kibana-oss:7.2.0
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       ELASTICSEARCH_URL: http://es-pract6:9200
     ports:
