@@ -198,7 +198,7 @@ curl -X POST "localhost:9200/twitter/_delete_by_query" -H 'Content-Type: applica
 
 ```
 
-##Ejercicio 3. Probando el lenguaje de consultas.
+## Ejercicio 3. Probando el lenguaje de consultas.
 
 En este ejercicio vamos a aprender cómo ejecutar diferentes tipos de consulta utilizando el Query DSL.
 
