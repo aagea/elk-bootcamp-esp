@@ -117,7 +117,7 @@ En este apartado vamos a indexar algunos momento y probaremos como podemos  crea
 1. Vamos a crear un documento.
 
 ```bash
-curl -X PUT "localhost:9200/twitter/1" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/twitter/all/1" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -129,7 +129,7 @@ curl -X PUT "localhost:9200/twitter/1" -H 'Content-Type: application/json' -d'
 3. Vale pero hemos creado un documento donde hemos puesto el ID de forma explicita, ahora vamos a probar esto.
 
 ```bash
-curl -X POST "localhost:9200/twitter/" -H 'Content-Type: application/json' -d'
+curl -X POST "localhost:9200/twitter/all/" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -153,7 +153,7 @@ Vamos a recuperar los documentos a través de su ID por lo que no haremos consul
 1. Vamos a crear un documento.
 
 ```bash
-curl -X PUT "localhost:9200/twitter/0" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/twitter/all/0" -H 'Content-Type: application/json' -d'
 {
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
@@ -164,13 +164,13 @@ curl -X PUT "localhost:9200/twitter/0" -H 'Content-Type: application/json' -d'
 2. Primero vamos a chequear que nuestro documento exista.
 
 ```bash
-curl --HEAD "localhost:9200/twitter/0"
+curl --HEAD "localhost:9200/twitter/all/0"
 ```
 
 3. Para recuperarlo por su ID vamos a utilizar el siguiente comando.
 
 ```bash
-curl -X GET "localhost:9200/twitter/0?pretty"
+curl -X GET "localhost:9200/twitter/all/0?pretty"
 ```
 
 4. Espera aquí hay más cosas de las que hemos añadido. ¿Para qué sirven todos esto datos?
@@ -183,7 +183,7 @@ Borrar documentos es sencillo en ElasticSearch y no es necesario tener que borra
 1. Esto es muy sencillo solo tenemos que lanzar este comando y borramos el documento seleccionado.
 
 ```bash
-curl -X DELETE "localhost:9200/twitter/0"
+curl -X DELETE "localhost:9200/twitter/all/0"
 ```
 
 2. Pero sí queremos borrar varios documento y pero no queremos borrar el indice, debemos utilizar el borrado por query.
