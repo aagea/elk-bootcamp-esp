@@ -338,7 +338,7 @@ volumes:
 8. Modificamos los permisos del fichero `hearbeat.yml`.
 
 9. ```bash
-   $ sudo chown root hearbeat.yml
+   $ sudo chown go-w hearbeat.yml
    ```
 
 9. Vamos a arrancar la composición con el comando `docker-compose up`.
