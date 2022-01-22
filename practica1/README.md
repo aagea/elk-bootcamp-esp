@@ -240,7 +240,7 @@ $ http "http://127.0.0.1:9200/_cat/health"
 1. Primero nos descargamos el dataset de ejemplo.
 
 ```bash
-$ wget "https://raw.githubusercontent.com/elastic/elasticsearch/master/docs/src/test/resources/accounts.json"
+$ wget "https://raw.githubusercontent.com/elastic/elasticsearch/6.0/docs/src/test/resources/accounts.json"
 ```
 
 2. Después ejecuta el siguiente comando.
